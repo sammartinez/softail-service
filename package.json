@@ -8,6 +8,8 @@
     "serve": "npx --yes serve ."
   },
   "devDependencies": {
-    "jsdom": "^24.1.0"
+    "astro": "^7.3.3",
+    "jsdom": "^24.1.0",
+    "typescript": "^7.0.2"
   }
 }

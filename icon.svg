@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Softail Service">
+  <rect width="512" height="512" rx="112" fill="#0F172A"/>
+  <path d="M256 128 L351 338 A100 100 0 1 1 161 338 Z" fill="#F59E0B"/>
+  <path d="M215 330a60 60 0 0 0 26 48" fill="none" stroke="#FFFBEB" stroke-width="15" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,585 @@
+/* Softail Service. Phone-first, light theme only (Sam's call: no dark mode).
+   No framework and no CDN, so the app works with no signal in the garage.
+
+   The look is Apple's: grouped inset lists, the SF system face, translucent
+   materials over the content, and Apple's system colours for status. None of
+   the numbers below are invented. They come from two published systems:
+
+     - Tailwind v4's default theme (tailwindcss/theme.css, v4.3.3) supplies the
+       neutral ramp, the type scale, radii, shadows, tracking and easings. The
+       token names below are Tailwind's own, so `--color-gray-500` here is the
+       same colour as `text-gray-500` there. Spacing is Tailwind's 0.25rem step,
+       written out as rem multiples (0.5rem = `2`, 1rem = `4`).
+     - Apple's Human Interface Guidelines supply the system colours (systemBlue,
+       systemRed, systemOrange, systemGreen), the grouped-list background and
+       the separator. These are the four accents plus the two greys that make
+       the app read as an Apple app rather than a Tailwind demo.
+
+   Tailwind's greys carry the text and hairlines because they have a full ramp;
+   Apple's system colours carry meaning (accent, overdue, soon, done). Where the
+   two overlap, a comment says which one won and why.
+
+   There is no build step. This file is hand-written and hand-edited. */
+
+:root{
+  /* ---- Tailwind v4 default theme, verbatim ------------------------- */
+  --color-white:#fff;
+  --color-gray-50:oklch(98.5% 0.002 247.839);
+  --color-gray-100:oklch(96.7% 0.003 264.542);
+  --color-gray-200:oklch(92.8% 0.006 264.531);
+  --color-gray-300:oklch(87.2% 0.01 258.338);
+  --color-gray-400:oklch(70.7% 0.022 261.325);
+  --color-gray-500:oklch(55.1% 0.027 264.364);
+  --color-gray-600:oklch(44.6% 0.03 256.802);
+  --color-gray-700:oklch(37.3% 0.034 259.733);
+  --color-gray-800:oklch(27.8% 0.033 256.848);
+  --color-gray-900:oklch(21% 0.034 264.665);
+  --color-red-50:oklch(97.1% 0.013 17.38);
+  --color-red-200:oklch(88.5% 0.062 18.334);
+  --color-red-700:oklch(50.5% 0.213 27.518);
+  --color-red-800:oklch(44.4% 0.177 26.899);
+  --color-orange-50:oklch(98% 0.016 73.684);
+  --color-orange-200:oklch(90.1% 0.076 70.697);
+  --color-orange-800:oklch(47% 0.157 37.304);
+  --color-green-50:oklch(98.2% 0.018 155.826);
+  --color-green-200:oklch(92.5% 0.084 155.995);
+  --color-green-700:oklch(52.7% 0.154 150.069);
+  --color-green-800:oklch(44.8% 0.119 151.328);
+  --color-blue-50:oklch(97% 0.014 254.604);
+  --color-blue-200:oklch(88.2% 0.059 254.128);
+  --color-blue-700:oklch(48.8% 0.243 264.376);
+  --color-blue-800:oklch(42.4% 0.199 265.638);
+
+  --text-xs:0.75rem;   --text-sm:0.875rem;  --text-base:1rem;
+  --text-lg:1.125rem;  --text-xl:1.25rem;   --text-2xl:1.5rem;
+  --text-3xl:1.875rem; --text-4xl:2.25rem;
+
+  --font-weight-medium:500; --font-weight-semibold:600; --font-weight-bold:700;
+  --tracking-tight:-0.025em; --tracking-wide:0.025em; --tracking-widest:0.1em;
+  --leading-tight:1.25; --leading-snug:1.375; --leading-normal:1.5;
+
+  --radius-sm:0.25rem; --radius-lg:0.5rem; --radius-xl:0.75rem;
+  --radius-2xl:1rem;   --radius-3xl:1.5rem;
+
+  --shadow-xs:0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  --ease-out:cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out:cubic-bezier(0.4, 0, 0.2, 1);
+  --duration:150ms;
+
+  /* ---- Apple HIG, light appearance --------------------------------- */
+  --system-blue:#007AFF;
+  --system-red:#FF3B30;
+  --system-orange:#FF9500;
+  --system-green:#34C759;
+  /* systemGroupedBackground: the grey an iOS grouped list sits on. Tailwind's
+     gray-100 is within a hair of it, but this is the one people recognise. */
+  --system-grouped-bg:#F2F2F7;
+  /* separator, the non-opaque one iOS uses between rows in a list */
+  --system-separator:rgb(60 60 67 / 0.29);
+
+  /* ---- what the app actually asks for ------------------------------ */
+  /* These names are the ones the rules below (and a few inline styles in
+     app.js) use. Keeping them means the token layer above can be swapped
+     without touching 400 lines of rules. */
+  --bg:var(--system-grouped-bg);
+  --card:var(--color-white);
+  --ink:var(--color-gray-900);
+  --ink2:var(--color-gray-700);
+  --muted:var(--color-gray-500);
+  --faint:var(--color-gray-400);
+  --line:var(--system-separator);   /* hairlines between list rows */
+  --line2:var(--color-gray-300);    /* the edge of a control */
+  --tint:var(--color-gray-100);     /* a recessed track or well */
+
+  /* Accent. systemBlue for fills and marks; Tailwind's blue-700 for accent
+     text, because systemBlue on white is under 4.5:1 at body size. */
+  --accent:var(--system-blue);
+  --accent-ink:var(--color-blue-700);
+  --accent-bg:var(--color-blue-50);
+  --accent-line:var(--color-blue-200);
+
+  /* Status. Apple's colour for the mark, Tailwind's dark step for the words. */
+  --amber:var(--color-orange-800);
+  --amber2:var(--system-orange);
+  --amber-bg:var(--color-orange-50);
+  --amber-line:var(--color-orange-200);
+  --green:var(--color-green-700);
+  --green2:var(--system-green);
+  --green-bg:var(--color-green-50);
+  --green-line:var(--color-green-200);
+  --green-ink:var(--color-green-800);
+  --red:var(--system-red);
+  --red-bg:var(--color-red-50);
+  --red-line:var(--color-red-200);
+  --red-ink:var(--color-red-800);
+  --blue:var(--color-blue-700);
+  --blue-bg:var(--color-blue-50);
+  --blue-line:var(--color-blue-200);
+
+  --r:var(--radius-xl);
+  --r2:var(--radius-2xl);
+
+  /* SF on Apple hardware, the platform UI face everywhere else. This is
+     Tailwind's --font-sans with Apple's two SF families put in front, so an
+     iPhone gets SF Pro Text for body and SF Pro Display for headings. No web
+     font, so nothing to download and nothing to cache. */
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",ui-sans-serif,system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --cond:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable Display","Segoe UI",ui-sans-serif,system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+
+  /* how far in a grouped-list hairline starts, so it lines up with the text
+     rather than the row's leading mark */
+  --inset-step:3.25rem;
+  --inset-check:2.6875rem;
+  --inset-row:1.375rem;
+
+  color-scheme:light;
+  accent-color:var(--accent);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:0.75rem}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--body);font-size:17px;line-height:var(--leading-normal);
+  letter-spacing:var(--tracking-tight);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  padding:env(safe-area-inset-top) 0 calc(4.75rem + env(safe-area-inset-bottom));
+}
+.wrap{max-width:640px;margin:0 auto;padding:0 1rem}
+/* SF Pro Display takes over above 20px on Apple hardware; the tight tracking
+   and the heavy weight are what make a heading read as Apple rather than as a
+   browser default. */
+h1,h2,h3{font-family:var(--cond);font-weight:var(--font-weight-bold);letter-spacing:-0.03em;line-height:var(--leading-tight);margin:0}
+h1{font-size:var(--text-4xl);letter-spacing:-0.035em}
+h2{font-size:var(--text-2xl);margin:1.75rem 0 0.625rem}
+h3{font-size:var(--text-xl);margin:1.125rem 0 0.5rem}
+p{margin:0 0 0.625rem}
+a{color:var(--accent-ink);text-decoration:underline;text-underline-offset:2px}
+ul{margin:0 0 0.625rem;padding-left:1.25rem}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer;letter-spacing:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:var(--radius-lg)}
+
+/* Apple's press feedback: the control dips slightly and comes back. Only
+   controls get it; a list row uses a background wash instead (below), because
+   scaling a whole row under a thumb reads as a drag. */
+.btn,.tbtn,.seg button,.pills button,.stick,.box,.legend button{
+  transition:transform var(--duration) var(--ease-out),
+             background-color var(--duration) var(--ease-out),
+             border-color var(--duration) var(--ease-out),
+             box-shadow var(--duration) var(--ease-out);
+}
+.btn:active,.tbtn:active,.seg button:active,.pills button:active,.stick:active,.legend button:active{transform:scale(0.97)}
+
+/* header */
+header.top{padding:1.5rem 0 0.25rem}
+header.top .kicker{font-size:var(--text-sm);font-weight:var(--font-weight-semibold);color:var(--muted);margin:0;letter-spacing:var(--tracking-tight)}
+header.top .odo{
+  display:flex;align-items:baseline;gap:0.5rem;margin-top:0.25rem;
+  font-size:var(--text-sm);color:var(--muted)
+}
+header.top .odo b{font-family:var(--cond);font-size:var(--text-xl);color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:var(--tracking-tight)}
+
+/* cards + generic bits */
+/* The grouped card: white on the grey grouped background, generous corner,
+   hairline edge, and a shadow soft enough that it reads as paper rather than
+   as a floating panel. The border stays a real border because app.js overrides
+   border-color inline on the "all done" and "your pick" cards. */
+.card{
+  background:var(--card);border:1px solid var(--color-gray-200);border-radius:var(--r2);
+  padding:1rem;margin-top:0.875rem;box-shadow:var(--shadow-xs)
+}
+.card.flat{background:none;border-style:dashed;border-color:var(--line2);box-shadow:none}
+.card>h2:first-child,.card>h3:first-child{margin-top:0}
+.muted{color:var(--muted)}
+.small{font-size:var(--text-base)}
+.xs{font-size:var(--text-sm)}
+.hint{color:var(--muted);font-size:var(--text-base)}
+.rule{height:1px;background:var(--line);border:0;margin:0.875rem 0}
+.stack>*+*{margin-top:0.625rem}
+.rowline{display:flex;gap:0.75rem;align-items:baseline;justify-content:space-between}
+.grow{min-width:0;flex:1}
+.nowrap{white-space:nowrap}
+
+/* buttons */
+/* Apple's filled/tinted/plain trio. The default is the tinted one: no fill,
+   a hairline edge, accent text. 44px minimum is Apple's tap target and also
+   what a gloved thumb needs. */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:0.4375rem;
+  min-height:2.75rem;padding:0.5625rem 1rem;border-radius:var(--radius-xl);
+  border:1px solid var(--line2);background:var(--card);color:var(--ink2);
+  font-size:var(--text-base);font-weight:var(--font-weight-semibold);text-decoration:none;
+  letter-spacing:var(--tracking-tight);box-shadow:var(--shadow-xs)
+}
+.btn:hover{border-color:var(--faint)}
+.btn.dark{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--shadow-sm)}
+.btn.dark:hover{background:var(--accent-ink)}
+.btn.go{background:var(--green2);border-color:var(--green2);color:#fff;box-shadow:var(--shadow-sm)}
+.btn.go:hover{background:var(--green)}
+.btn.sm{min-height:2.25rem;padding:0.3125rem 0.75rem;font-size:var(--text-sm);border-radius:var(--radius-lg)}
+.btn.wide{width:100%}
+.btn.link{border:0;background:none;padding:0;min-height:0;color:var(--accent-ink);text-decoration:underline;text-underline-offset:2px;box-shadow:none}
+.btn[disabled]{opacity:.45;cursor:default;box-shadow:none}
+.btnrow{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem}
+
+/* chips + badges */
+.chip{
+  display:inline-flex;align-items:center;gap:0.3125rem;
+  padding:0.1875rem 0.5rem;border-radius:var(--radius-lg);font-size:var(--text-sm);
+  font-weight:var(--font-weight-semibold);letter-spacing:var(--tracking-tight);
+  background:var(--accent-bg);color:var(--accent-ink);border:1px solid var(--accent-line);
+  /* Don't grow. Shrink only as a last resort: inside .chips (which wraps) a
+     chip moves to the next line before it gives up any width, so short labels
+     keep their natural size and a long one wraps instead of overflowing a
+     narrow grid column. */
+  flex:0 1 auto;min-width:0;max-width:100%
+}
+.chip.plain{background:var(--tint);color:var(--ink2);border-color:var(--color-gray-200)}
+.chip.ok{background:var(--green-bg);color:var(--green-ink);border-color:var(--green-line)}
+.chip.overdue{background:var(--red-bg);color:var(--red-ink);border-color:var(--red-line)}
+.chips{display:flex;flex-wrap:wrap;gap:0.375rem;margin-top:0.375rem}
+.badge{font-size:var(--text-xs);font-weight:var(--font-weight-bold);text-transform:uppercase;letter-spacing:var(--tracking-widest);color:var(--accent-ink)}
+
+/* alerts */
+.warn,.note{border-radius:var(--radius-xl);padding:0.625rem 0.75rem;font-size:var(--text-base);margin-top:0.5rem}
+.warn b,.note b{margin-right:0.25rem}
+.warn{background:var(--red-bg);border:1px solid var(--red-line);color:var(--red-ink)}
+.note{background:var(--blue-bg);border:1px solid var(--blue-line);color:var(--blue)}
+.warn b,.note b{font-weight:var(--font-weight-bold)}
+
+/* segmented control */
+/* iOS's: a recessed grey track, and the selected segment is a white pill that
+   sits on top of it. The selected label is plain ink, not accent — that is
+   what Apple does, and it keeps the accent meaning "tap this". */
+.seg{display:flex;gap:0.125rem;background:var(--tint);padding:0.125rem;border-radius:var(--radius-xl);margin-top:0.875rem;overflow-x:auto}
+.seg button{
+  flex:1 0 auto;min-height:2.25rem;padding:0 0.875rem;border:0;border-radius:calc(var(--radius-xl) - 0.125rem);background:none;
+  font-size:var(--text-base);font-weight:var(--font-weight-medium);color:var(--ink2);white-space:nowrap;
+  letter-spacing:var(--tracking-tight)
+}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);font-weight:var(--font-weight-semibold);box-shadow:var(--shadow-sm)}
+
+/* filter pills */
+.pills{display:flex;gap:0.5rem;overflow-x:auto;padding:0.125rem 1rem 0.25rem;margin:0.875rem -1rem 0}
+.pills button{
+  flex:0 0 auto;min-height:2.25rem;padding:0 1rem;border-radius:var(--radius-3xl);
+  border:1px solid var(--line2);background:var(--card);color:var(--ink2);
+  font-size:var(--text-base);font-weight:var(--font-weight-medium);letter-spacing:var(--tracking-tight)
+}
+.pills button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:var(--font-weight-semibold)}
+
+/* progress sticks */
+.sticks{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:1.125rem}
+.stick{
+  border:1px solid var(--color-gray-200);background:var(--card);border-radius:var(--r);
+  padding:0.5rem 0.5rem 0.625rem;text-align:left;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-xs)
+}
+.stick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.stick .lbl{font-family:var(--cond);font-size:var(--text-base);font-weight:var(--font-weight-semibold);letter-spacing:var(--tracking-tight)}
+.stick .sub{font-size:var(--text-xs);color:var(--muted)}
+.stick .tube{height:0.375rem;border-radius:var(--radius-sm);background:var(--tint);margin-top:0.375rem;overflow:hidden}
+.stick .fill{height:100%;background:var(--accent);border-radius:var(--radius-sm);transition:width .35s var(--ease-out)}
+.stick.done .fill{background:var(--green2)}
+
+/* ---- grouped inset lists ------------------------------------------- */
+/* The three row types (step, check, due) are one pattern: a leading mark, then
+   text, with a hairline between rows that starts where the text starts rather
+   than at the card edge. That left-inset hairline is the single most Apple
+   thing in the app. It is drawn as a pseudo-element, not a border, because
+   .duerow is a <button> that app.js resets with an inline `border:0` — an
+   inline border wins over any rule here, a pseudo-element is untouched by it.
+   Rows wash grey under a thumb instead of scaling. */
+.step,.check,.duerow{position:relative}
+.step::before,.check::before,.duerow::before{
+  content:"";position:absolute;top:0;right:0;height:1px;background:var(--line)
+}
+.step:first-child::before,.check:first-child::before,.duerow:first-child::before{display:none}
+
+/* step rows */
+.step{display:flex;gap:0.75rem;padding:0.875rem 0;cursor:pointer}
+.step::before{left:var(--inset-step)}
+.step:active{background:var(--tint)}
+.step .num{
+  flex:0 0 auto;display:grid;place-items:center;width:2.5rem;height:2.5rem;border-radius:var(--radius-xl);
+  border:2px solid var(--color-gray-300);background:none;
+  font-family:var(--cond);font-size:var(--text-lg);font-weight:var(--font-weight-bold);color:var(--faint);
+  font-variant-numeric:tabular-nums
+}
+.step.next .num{border-color:var(--accent);color:var(--accent-ink)}
+.step.done .num{border-color:var(--green2);background:var(--green2);color:#fff}
+.step.done .t{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line2)}
+.step .t{font-size:17px;font-weight:var(--font-weight-semibold);line-height:var(--leading-snug)}
+.step .b{font-size:var(--text-base);color:var(--ink2);margin-top:0.1875rem}
+
+/* checklists */
+.check{display:flex;gap:0.6875rem;padding:0.75rem 0;align-items:flex-start}
+.check::before{left:var(--inset-check)}
+.box{
+  flex:0 0 auto;display:grid;place-items:center;width:2rem;height:2rem;border-radius:var(--radius-lg);
+  border:2px solid var(--line2);background:var(--card);color:transparent
+}
+.box[aria-pressed="true"],.box[aria-checked="true"]{border-color:var(--green2);background:var(--green2);color:#fff}
+.box[disabled]{border-style:dashed;opacity:.5}
+
+/* tables */
+.spectable{width:100%;border-collapse:collapse;font-size:var(--text-base)}
+.spectable td{padding:0.5625rem 0;border-top:1px solid var(--line);vertical-align:top}
+.spectable tr:first-child td{border-top:0}
+.spectable td:first-child{color:var(--muted);padding-right:0.875rem}
+.spectable td:last-child{text-align:right;font-weight:var(--font-weight-semibold);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* accordion */
+details.acc{border:1px solid var(--color-gray-200);border-radius:var(--r2);background:var(--card);margin-top:0.625rem;box-shadow:var(--shadow-xs)}
+details.acc>summary{
+  list-style:none;cursor:pointer;padding:0.875rem 1rem;font-size:var(--text-lg);font-weight:var(--font-weight-semibold);
+  display:flex;gap:0.625rem;align-items:center;justify-content:space-between;
+  letter-spacing:var(--tracking-tight);border-radius:var(--r2)
+}
+details.acc>summary:active{background:var(--tint)}
+details.acc>summary::-webkit-details-marker{display:none}
+/* the chevron iOS puts at the end of a disclosure row */
+details.acc>summary::after{content:"";width:0.5rem;height:0.5rem;flex:0 0 auto;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);border-radius:1px;transform:rotate(45deg) translateY(-2px);transition:transform .2s var(--ease-in-out)}
+details.acc[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+details.acc .body{padding:0 1rem 1rem}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  .btn:active,.tbtn:active,.seg button:active,.pills button:active,.stick:active,.legend button:active{transform:none}
+}
+
+/* due list */
+.duerow{display:flex;gap:0.75rem;padding:0.8125rem 0;align-items:flex-start}
+.duerow::before{left:var(--inset-row)}
+.duerow:active{background:var(--tint)}
+.duerow .dot{flex:0 0 auto;width:0.625rem;height:0.625rem;border-radius:50%;margin-top:0.5rem;background:var(--line2)}
+.duerow.now .dot{background:var(--system-red)}
+.duerow.soon .dot{background:var(--system-orange)}
+.duerow.ok .dot{background:var(--system-green)}
+.duerow .lbl{display:block;font-size:var(--text-base);font-weight:var(--font-weight-semibold);line-height:var(--leading-snug)}
+.duerow .when{display:block;font-size:var(--text-sm);color:var(--muted)}
+
+/* timer bar */
+/* A floating dark material, the way iOS floats a Now Playing bar over content.
+   The blur is what sells it; where backdrop-filter is missing the opaque
+   fallback below is already in place. */
+.timerbar{
+  position:fixed;left:0;right:0;z-index:20;padding:0 1rem 0.5rem;
+  bottom:calc(4rem + env(safe-area-inset-bottom))
+}
+.timerbar .inner{
+  max-width:640px;margin:0 auto;background:var(--color-gray-900);color:#fff;border-radius:var(--radius-2xl);
+  padding:0.625rem 0.875rem;display:flex;align-items:center;gap:0.75rem;
+  box-shadow:var(--shadow-xl)
+}
+.timerbar .t{font-family:var(--cond);font-size:var(--text-2xl);font-weight:var(--font-weight-bold);font-variant-numeric:tabular-nums;letter-spacing:var(--tracking-tight)}
+.timerbar .lbl{flex:1;min-width:0;font-size:var(--text-base);color:var(--color-gray-300)}
+.timerbar .inner.up{background:var(--green)}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .timerbar .inner{
+    background:color-mix(in oklab,var(--color-gray-900) 82%,transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)
+  }
+  .timerbar .inner.up{background:color-mix(in oklab,var(--green) 86%,transparent)}
+}
+.tbtn{
+  display:inline-flex;align-items:center;gap:0.375rem;min-height:2.25rem;padding:0.3125rem 0.75rem;border-radius:var(--radius-lg);
+  border:0;background:rgb(255 255 255 / 0.18);color:#fff;font-size:var(--text-sm);font-weight:var(--font-weight-semibold)
+}
+.tbtn.run{background:var(--system-orange);font-family:var(--cond);font-size:var(--text-lg);font-variant-numeric:tabular-nums;padding:0.25rem 0.75rem}
+.tbtn.up{background:var(--green-bg);color:var(--green-ink);border:1px solid var(--green-line)}
+
+/* bottom nav */
+/* The iOS tab bar: a translucent material the content scrolls under, a hairline
+   above it, and the active tab in the accent colour. */
+nav.bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:var(--card);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  nav.bar{
+    background:color-mix(in oklab,var(--card) 72%,transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)
+  }
+}
+nav.bar .inner{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav.bar button{
+  border:0;background:none;padding:0.5625rem 0.125rem 0.5rem;min-height:4rem;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1875rem;
+  font-size:var(--text-xs);font-weight:var(--font-weight-medium);color:var(--muted);
+  letter-spacing:var(--tracking-tight)
+}
+nav.bar button[aria-current="page"]{color:var(--accent);font-weight:var(--font-weight-semibold)}
+nav.bar button:active{opacity:.55}
+nav.bar svg{width:1.4375rem;height:1.4375rem}
+
+/* diagram */
+figure.diag{margin:0.625rem 0 0;background:var(--tint);border-radius:var(--r);padding:0.5rem}
+figure.diag svg{width:100%;height:auto;display:block}
+figure.diag figcaption{font-size:var(--text-xs);font-weight:var(--font-weight-semibold);color:var(--muted);padding:0.125rem 0.25rem 0}
+.legend{list-style:none;padding:0;margin:0.625rem 0 0}
+.legend button{
+  display:flex;gap:0.6875rem;width:100%;text-align:left;border:0;background:none;
+  padding:0.5rem;border-radius:var(--radius-xl)
+}
+.legend button[aria-pressed="true"]{background:var(--accent-bg);box-shadow:inset 0 0 0 1px var(--accent-line)}
+.legend .n{
+  flex:0 0 auto;display:grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:50%;
+  background:var(--accent);color:#fff;font-size:var(--text-xs);font-weight:var(--font-weight-bold)
+}
+.legend .nm{font-size:var(--text-base);font-weight:var(--font-weight-semibold);line-height:var(--leading-snug);display:block}
+.legend .wh{font-size:var(--text-sm);color:var(--muted);display:block}
+
+/* forms */
+label.fld{display:block;margin-top:0.75rem;font-size:var(--text-base);font-weight:var(--font-weight-semibold);color:var(--ink2)}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%;margin-top:0.3125rem;padding:0.6875rem 0.8125rem;font:inherit;font-size:var(--text-base);
+  letter-spacing:var(--tracking-tight);
+  border:1px solid var(--line2);border-radius:var(--radius-xl);background:var(--card);color:var(--ink)
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.err{color:var(--color-red-700);font-size:var(--text-sm);margin-top:0.3125rem}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:0.625rem}
+.pricecell{flex:0 0 auto;width:6rem;text-align:right}
+input.money{width:100%;text-align:right;padding:0.5625rem 0.625rem}
+
+/* wrappers that only do something once there is room */
+/* empty render targets still take a grid row and a gap, which shows up as a
+   mystery hole between cards */
+#dueNow:empty,#dueSoon:empty,#dueRest:empty,#logSaved:empty{display:none}
+.brand{display:none}
+.cardgroup{display:block}
+.fieldrow{display:grid;gap:0 0.875rem}
+
+/* ============================================================
+   Responsive layout.
+   Phone first: everything above is the small-screen layout. These
+   widen it out rather than redesigning it, so the garage layout is
+   the one that gets the least chance to break.
+   ============================================================ */
+
+/* --- very small phones (SE, older Androids) --- */
+@media (max-width:359px){
+  body{font-size:16px}
+  h1{font-size:var(--text-3xl)}
+  h2{font-size:var(--text-xl)}
+  .wrap{padding:0 0.75rem}
+  .step .num{width:2.25rem;height:2.25rem}
+  .step{--inset-step:3rem}
+  nav.bar button{font-size:0.6875rem;padding:0.5rem 0.0625rem 0.4375rem}
+  nav.bar svg{width:1.3125rem;height:1.3125rem}
+}
+
+/* --- keep clear of a notch when the phone is on its side --- */
+@media (orientation:landscape){
+  .wrap{padding-left:max(1rem,env(safe-area-inset-left));padding-right:max(1rem,env(safe-area-inset-right))}
+}
+
+/* --- big phones and small tablets --- */
+@media (min-width:600px){
+  .wrap{max-width:720px;padding:0 1.25rem}
+  h1{font-size:var(--text-4xl)}
+  .fieldrow{grid-template-columns:1fr 1fr}
+  #fItems{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 1.375rem;align-items:start}
+  .pricecell{width:6.875rem}
+}
+
+/* --- tablets: two-up card grids --- */
+@media (min-width:760px){
+  .wrap{max-width:900px;padding:0 1.5rem}
+  #jobList,#refSpecs,#refTorque,#refCodes,#history{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start
+  }
+  #jobList>.card,#refSpecs>.card,#refTorque>.card,#refCodes>.card,#history>.card{margin-top:0}
+  #refTorque>.hint,#refFix>.hint{grid-column:1/-1;margin-top:0}
+  #refFix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.75rem;align-items:start}
+  #refFix>details.acc{margin-top:0}
+  #parts,#tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.5rem 1.5rem;align-items:start}
+  .cardgroup h2{margin-top:1.125rem}
+  /* both sides of the bike side by side instead of stacked */
+  #map{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+  figure.diag{margin-top:0}
+  .legend{columns:2;column-gap:1.25rem}
+  .legend li{break-inside:avoid}
+}
+
+/* --- phone in landscape: the screen is short, so give the nav less of it.
+       Scoped under 900px so it never fights the desktop side rail, and placed
+       after the width breakpoints so it wins on type size. --- */
+@media (max-width:899px) and (max-height:520px) and (orientation:landscape){
+  body{padding-bottom:calc(3.5rem + env(safe-area-inset-bottom))}
+  nav.bar button{min-height:3rem;padding:0.3125rem 0.125rem}
+  nav.bar svg{width:1.1875rem;height:1.1875rem}
+  .timerbar{bottom:calc(3.125rem + env(safe-area-inset-bottom))}
+  header.top{padding:0.75rem 0 0.125rem}
+  h1{font-size:var(--text-3xl)}
+  h2{font-size:var(--text-xl)}
+}
+
+/* --- laptops and up: the bottom bar becomes a side rail --- */
+@media (min-width:900px){
+  body{
+    padding:env(safe-area-inset-top) 0 2rem;
+    padding-left:calc(224px + env(safe-area-inset-left))
+  }
+  .wrap{max-width:940px;margin:0 auto}
+  nav.bar{
+    top:0;bottom:0;right:auto;width:calc(224px + env(safe-area-inset-left));
+    border-top:0;border-right:1px solid var(--line);
+    padding:1.125rem 0.75rem 1.125rem calc(0.75rem + env(safe-area-inset-left));
+    display:flex;flex-direction:column;gap:0.875rem;overflow-y:auto
+  }
+  nav.bar .brand{
+    display:block;margin:0 0 0 0.75rem;font-family:var(--cond);font-size:var(--text-xl);
+    font-weight:var(--font-weight-bold);letter-spacing:-0.03em;color:var(--ink)
+  }
+  nav.bar .inner{max-width:none;grid-template-columns:1fr;gap:0.1875rem}
+  nav.bar button{
+    flex-direction:row;justify-content:flex-start;gap:0.75rem;
+    min-height:2.875rem;padding:0 0.75rem;border-radius:var(--radius-xl);font-size:var(--text-base)
+  }
+  nav.bar button[aria-current="page"]{background:var(--accent-bg)}
+  nav.bar svg{width:1.25rem;height:1.25rem}
+  .timerbar{left:calc(224px + env(safe-area-inset-left));bottom:1rem;padding:0 1.5rem}
+  .timerbar .inner{max-width:560px;margin:0}
+  /* prose stays readable even though the page is wide */
+  #jobBody,#shopList,#view-log>.card,#view-log>details.acc{max-width:860px;margin-inline:auto}
+  #view-log>h2{max-width:860px;margin-inline:auto}
+}
+
+/* --- desktop: the due screen gets a sticky odometer column --- */
+@media (min-width:1000px){
+  #view-due{display:grid;grid-template-columns:330px minmax(0,1fr);gap:1.375rem;align-items:start}
+  #odoCard{margin-top:0.875rem;position:sticky;top:1.125rem}
+  #dueNow,#dueSoon,#dueRest,#rideCard{grid-column:2}
+  #dueNow>.card:first-child,#rideCard{margin-top:0.875rem}
+}
+
+/* --- wide desktop --- */
+@media (min-width:1280px){
+  .wrap{max-width:1180px}
+  #jobList{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #fItems{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #parts,#tools{gap:0.5rem 1.75rem}
+  .legend{columns:3}
+}
+
+/* --- very wide: stop the line length running away --- */
+@media (min-width:1700px){
+  .wrap{max-width:1360px}
+  #jobList{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+/* print a job sheet for the bench */
+@media print{
+  nav.bar,.timerbar,.seg,.pills,.btnrow{display:none!important}
+  body{padding:0;font-size:12pt}
+  .card{break-inside:avoid;border-color:#999;box-shadow:none}
+}

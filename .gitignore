@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.astro/
+map-preview.html
+.DS_Store

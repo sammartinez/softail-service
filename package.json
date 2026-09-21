@@ -1,15 +1,22 @@
 {
   "name": "softail-service",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Maintenance web app for a 2003 Harley-Davidson Heritage Softail Classic, built from the Softail 2000-2005 service manual",
+  "description": "Maintenance web app for a 2003 Harley-Davidson Heritage Softail Classic, built from the Softail 2000-2005 service manual. Astro, static output, offline.",
   "scripts": {
-    "test": "node tests/suite.js",
-    "serve": "npx --yes serve ."
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "data": "node schema-check.mjs"
   },
   "devDependencies": {
     "astro": "^7.3.3",
     "jsdom": "^24.1.0",
-    "typescript": "^7.0.2"
-  }
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  },
+  "type": "module"
 }

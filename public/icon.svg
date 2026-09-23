@@ -1,5 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Softail Service">
-  <rect width="512" height="512" rx="112" fill="#0F172A"/>
-  <path d="M256 128 L351 338 A100 100 0 1 1 161 338 Z" fill="#F59E0B"/>
-  <path d="M215 330a60 60 0 0 0 26 48" fill="none" stroke="#FFFBEB" stroke-width="15" stroke-linecap="round"/>
+  <rect width="512" height="512" rx="112" fill="#0071E3"/>
+  <!-- A 45-degree V-twin, the Twin Cam's shape: two finned cylinders on one
+       crankcase. Three thick fins, all of them above the point where the two
+       bores meet, so the V stays open. favicon.svg is the tab-sized version. -->
+  <g fill="#fff" transform="translate(256 258) scale(1.25) translate(-256 -298)">
+    <g id="cyl" transform="rotate(-22.5 256 372)">
+      <rect x="202" y="160" width="108" height="40" rx="12"/>
+      <rect x="214" y="190" width="84" height="182" rx="8"/>
+      <path d="M208 214h96M208 244h96M208 274h96" stroke="#0071E3" stroke-width="14"/>
+    </g>
+    <use href="#cyl" transform="rotate(45 256 372)"/>
+    <circle cx="256" cy="372" r="66"/>
+    <circle cx="256" cy="372" r="22" fill="#0071E3"/>
+  </g>
 </svg>

@@ -9,6 +9,9 @@ import { miles, fmtDate, today, jobById, esc } from "@lib/format";
 import { $, all, one, show, text, reduceMotion } from "./dom";
 
 let justLogged = false;
+/* #logSaved is a live region: only replace its markup when it changes, or
+   every repaint would read "Logged" out again. */
+let savedHtml = "";
 let logPrefill: string | null = null;
 
 export const prefillLog = (jobId: string) => { logPrefill = jobId; };
@@ -17,11 +20,12 @@ export function renderLog(): void {
   const sorted = [...state().log].sort(
     (a, b) => b.miles - a.miles || String(b.date).localeCompare(String(a.date)));
 
-  $("logSaved")!.innerHTML = justLogged
+  const saved = justLogged
     ? '<div class="card" style="border-color:var(--green-line);background:var(--green-bg)"><p style="margin:0;font-weight:700;color:var(--green-ink)">Logged</p>' +
       '<p class="small" style="margin:4px 0 0;color:var(--green-ink)">Clear the checklists so they are ready for next time?</p>' +
       '<div class="btnrow"><button class="btn go" data-fresh="1">Start fresh</button></div></div>'
     : "";
+  if (saved !== savedHtml) { $("logSaved")!.innerHTML = saved; savedHtml = saved; }
 
   const fDate = $("fDate") as HTMLInputElement;
   const fOdo = $("fOdo") as HTMLInputElement;
@@ -58,15 +62,20 @@ export function saveEntry(): boolean {
   const m = Number(raw);
   const jobs = all<HTMLInputElement>(".fJob:checked").map(c => c.value);
   const err = $("fErr")!;
-  if (!raw || !Number.isInteger(m) || m < 0 || m > 999999) {
-    text(err, "Enter the odometer reading in whole miles.");
+  /* Unhide before writing the text, so the alert role announces it, and put
+     focus on what needs fixing. */
+  const fail = (msg: string, at: HTMLElement | null) => {
     err.hidden = false;
+    err.textContent = msg;
+    at?.focus();
     return false;
-  }
+  };
+  const badOdo = !raw || !Number.isInteger(m) || m < 0 || m > 999999;
+  fOdo.setAttribute("aria-invalid", String(badOdo));
+  if (badOdo) return fail("Enter the odometer reading in whole miles.", fOdo);
   if (!jobs.length) {
-    text(err, "Tick at least one job you did.");
-    err.hidden = false;
-    return false;
+    const first = all<HTMLInputElement>(".fJob").find(c => c.offsetParent !== null) || one<HTMLInputElement>(".fJob");
+    return fail("Tick at least one job you did.", first);
   }
   err.hidden = true;
   state().log.push({

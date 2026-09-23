@@ -10,7 +10,7 @@ import type { Runtime } from "@lib/runtime";
 import { state, save, load, VIEWS, TABS } from "@lib/state";
 import { togglePick } from "@lib/shop";
 import { jobById } from "@lib/format";
-import { $, all, one, show, press, text } from "./dom";
+import { $, all, one, show, press, text, reduceMotion } from "./dom";
 import { renderDue, renderHeader } from "./due";
 import { paintJobList, paintJobDetail, openJob, closeJob, setGroup, toggleStep, clearSteps } from "./jobs";
 import { paintShop, paintParts, paintTools, renderBuyList, setStore, clearGroup, retotal } from "./shop";
@@ -25,7 +25,7 @@ function paintSpot(): void {
   map?.classList.toggle("dim", !!spot);
   all("#map [data-spot]").forEach(g =>
     g.classList.toggle("sel", (g as HTMLElement).dataset.spot === spot));
-  all("#legend [data-spot]").forEach(b =>
+  all("#map [data-spot], #legend [data-spot]").forEach(b =>
     press(b, (b as HTMLElement).dataset.spot === spot));
 }
 
@@ -39,7 +39,7 @@ function showSpot(id: string): void {
   const box = $("mapBox") as HTMLDetailsElement | null;
   if (box) box.open = true;
   paintSpot();
-  box?.scrollIntoView({ behavior: "smooth", block: "start" });
+  box?.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
 }
 
 /* ---- views ---- */
@@ -50,6 +50,7 @@ export function setView(v: string): void {
   const open = state().job;
   const job = v === "jobs" && open ? jobById(open) : null;
   text($("viewTitle"), job ? job.title : VIEWS[v]!);
+  document.title = (job ? job.title : VIEWS[v]!) + " · Softail Service";
   all("nav.bar [data-view]").forEach(b => {
     if ((b as HTMLElement).dataset.view === v) b.setAttribute("aria-current", "page");
     else b.removeAttribute("aria-current");
@@ -104,9 +105,9 @@ export function init(): void {
 
   /* ---- due ---- */
   $("view-due")?.addEventListener("click", e => {
-    if (closest(e, "[data-jump-log]")) { setView("log"); renderAll(); return; }
+    if (closest(e, "[data-jump-log]")) { setView("log"); renderAll(); focusTitle(); return; }
     const j = closest(e, "[data-job]");
-    if (j) { openJob(j.dataset.job!); setView("jobs"); scrollTopInstant(); }
+    if (j) { openJob(j.dataset.job!); setView("jobs"); scrollTopInstant(); focusTitle(); }
   });
   $("odoNow")?.addEventListener("input", () => {
     state().odo = ($("odoNow") as HTMLInputElement).value.trim();
@@ -122,9 +123,15 @@ export function init(): void {
   });
   $("jobList")?.addEventListener("click", e => {
     const b = closest(e, "[data-open]");
-    if (b) { openJob(b.dataset.open!); setView("jobs"); scrollTopInstant(); }
+    if (b) { openJob(b.dataset.open!); setView("jobs"); scrollTopInstant(); focusTitle(); }
   });
-  $("jobBack")?.addEventListener("click", () => { closeJob(); setView("jobs"); });
+  $("jobBack")?.addEventListener("click", () => {
+    const was = state().job;
+    closeJob();
+    setView("jobs");
+    /* back to the card that was opened, so a keyboard user keeps their place */
+    (one(`#jobList [data-open="${CSS.escape(was || "")}"]`) as HTMLElement | null)?.focus();
+  });
 
   $("jobBody")?.addEventListener("click", e => {
     const where = closest(e, "[data-act='where']");
@@ -141,6 +148,7 @@ export function init(): void {
       if (jump.dataset.jump === "log") { prefillLog(state().job!); setView("log"); renderLog(); }
       else { setView("shop"); paintShop(); }
       scrollTopInstant();
+      focusTitle();
       return;
     }
 
@@ -281,11 +289,16 @@ export function init(): void {
   setInterval(tick, 1000);
 
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    window.addEventListener("load", () => navigator.serviceWorker.register(import.meta.env.BASE_URL.replace(/\/?$/, "/") + "sw.js").catch(() => {}));
   }
 }
 
 const scrollTopInstant = () => window.scrollTo({ top: 0, behavior: "auto" });
+
+/* After a tap that hides the control it came from, focus would drop to <body>
+   and a screen reader would say nothing about the new screen. The title is
+   where the new screen starts. */
+const focusTitle = () => $("viewTitle")?.focus({ preventScroll: true });
 
 /* Handed to the tests, which drive the clock by hand rather than waiting. */
 export { tick, state, spot as selectedSpot };

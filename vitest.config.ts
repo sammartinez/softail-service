@@ -15,5 +15,8 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     environment: "node",
     setupFiles: ["tests/setup.ts"],
+    /* Node 25 ships localStorage on by default and warns on every run when it
+       has no backing file. These tests never touch it. */
+    execArgv: ["--no-experimental-webstorage"],
   },
 });

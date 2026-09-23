@@ -8,6 +8,11 @@ import { VIEWS } from "@lib/state";
 import { NAV } from "@lib/icons";
 import "../styles/styles.css";
 
+/* Public files are linked through the base, not relative to the page: opened
+   at the dev server's bare "/", a relative "sw.js" asks for /sw.js, which is
+   outside the base and fails. */
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+
 const views = Object.keys(VIEWS) as (keyof typeof NAV)[];
 const label: Record<string, string> = {
   due: "Due", jobs: "Jobs", shop: "Shop", log: "Log", ref: "Specs",
@@ -22,12 +27,14 @@ const label: Record<string, string> = {
 <meta name="color-scheme" content="light" />
 <meta name="theme-color" content="#F8FAFC" />
 <meta name="description" content="Maintenance reference for a 2003 Harley-Davidson Heritage Softail Classic, built from the Softail 2000-2005 service manual." />
+<meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Softail" />
 <title>Softail Service · 2003 Heritage</title>
-<link rel="manifest" href="manifest.webmanifest" />
-<link rel="icon" href="icon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="manifest" href={base + "manifest.webmanifest"} />
+<link rel="icon" href={base + "favicon-32.png"} sizes="32x32" type="image/png" />
+<link rel="icon" href={base + "favicon.svg"} type="image/svg+xml" />
+<link rel="apple-touch-icon" href={base + "icon-180.png"} />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
@@ -38,7 +45,7 @@ const label: Record<string, string> = {
 
   <header class="top">
     <p class="kicker" id="bikeLine">{BIKE.year} {BIKE.name} · {BIKE.engine} · <span id="fuelLabel">Carb</span></p>
-    <h1 id="viewTitle">What's due</h1>
+    <h1 id="viewTitle" tabindex="-1">What's due</h1>
     <p class="odo" id="odoLine"></p>
   </header>
 
@@ -52,6 +59,7 @@ const label: Record<string, string> = {
 </div>
 
 <div class="timerbar" id="timerBar" hidden></div>
+<p class="sr" id="announce" aria-live="assertive"></p>
 
 <nav class="bar" aria-label="Views">
   <p class="brand" aria-hidden="true">Softail Service</p>

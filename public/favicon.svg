@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- The tab-sized icon.svg: the same V-twin with the fins left off, because at
+       16px they only blur the V. Home-screen icons keep the detailed drawing. -->
+  <rect width="64" height="64" rx="14" fill="#0071E3"/>
+  <g fill="#fff">
+    <g id="c" transform="rotate(-22.5 32 45)">
+      <rect x="24" y="9" width="16" height="7" rx="2"/>
+      <rect x="26.5" y="15" width="11" height="30"/>
+    </g>
+    <use href="#c" transform="rotate(45 32 45)"/>
+    <circle cx="32" cy="45" r="9.5"/>
+    <circle cx="32" cy="45" r="3.2" fill="#0071E3"/>
+  </g>
+</svg>

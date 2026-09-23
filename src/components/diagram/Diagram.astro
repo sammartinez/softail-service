@@ -29,7 +29,7 @@ const spotOf = (id: string) => SPOTS.find(s => s.id === id);
     const marks = MARKS.filter(m => m.s === "b" || m.s === (left ? "l" : "r"));
     return (
       <figure class="diag">
-        <svg viewBox={VIEWBOX} role="img" aria-label={`${left ? "Left" : "Right"} side of the bike with numbered service points`}>
+        <svg viewBox={VIEWBOX} role="group" aria-label={`${left ? "Left" : "Right"} side of the bike with numbered service points`}>
           <g transform={left ? `translate(${DW},0) scale(-1,1)` : undefined}>
             <Fragment set:html={BASE + art} />
           </g>
@@ -38,7 +38,7 @@ const spotOf = (id: string) => SPOTS.find(s => s.id === id);
             if (!sp) return null;
             const x = mx(m.x), y = m.y;
             return (
-              <g data-spot={sp.id} role="button" tabindex="0" aria-label={`${sp.n}, ${sp.name}`} style="cursor:pointer">
+              <g data-spot={sp.id} role="button" tabindex="0" aria-pressed="false" aria-label={`${sp.n}, ${sp.name}`} style="cursor:pointer">
                 {(m.t || []).map(p => {
                   const d = `M${x} ${y}L${mx(p[0])} ${p[1]}`;
                   return (

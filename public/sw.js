@@ -1,6 +1,6 @@
 /* Offline cache. Bump CACHE whenever any shell file changes, or the phone
    keeps serving the old copy. */
-const CACHE = "softail-service-v8";
+const CACHE = "softail-service-v9";
 /* Files with fixed names. The CSS and JS are bundled by Astro into _astro/
    with a content hash in the name, so they can't be listed here — install
    reads them out of the built page instead. Listing a file that doesn't exist
@@ -10,6 +10,8 @@ const SHELL = [
   "./",
   "./manifest.webmanifest",
   "./icon.svg",
+  "./favicon.svg",
+  "./favicon-32.png",
   "./icon-180.png",
   "./icon-512.png"
 ];

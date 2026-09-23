@@ -10,21 +10,22 @@ import { GROUPS } from "@lib/state";
 const groups = GROUPS.filter(g => g !== "All").filter(g => JOBS.some(j => j.group === g));
 ---
 
-<div id="logSaved"></div>
+<div id="logSaved" role="status"></div>
 
 <div class="card">
   <h2 style="margin-top:0">Log a service</h2>
   <div class="fieldrow">
     <div>
       <label class="fld" for="fOdo">Odometer</label>
-      <input id="fOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 38400" autocomplete="off" />
+      <input id="fOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 38400" autocomplete="off" aria-describedby="fErr" />
     </div>
     <div>
       <label class="fld" for="fDate">Date</label>
       <input id="fDate" type="date" />
     </div>
   </div>
-  <p class="fld" style="margin-bottom:0">What did you do?</p>
+  <fieldset class="plain" aria-describedby="fErr">
+  <legend class="fld">What did you do?</legend>
   <div id="fItems">
     {groups.map(g => (
       <div style="margin-top:10px">
@@ -38,9 +39,10 @@ const groups = GROUPS.filter(g => g !== "All").filter(g => JOBS.some(j => j.grou
       </div>
     ))}
   </div>
+  </fieldset>
   <label class="fld" for="fNote">Notes</label>
   <textarea id="fNote" rows="2" placeholder="Oil used, anything you noticed on the drain plugs, parts still needed"></textarea>
-  <p class="err" id="fErr" hidden></p>
+  <p class="err" id="fErr" role="alert" hidden></p>
   <div class="btnrow"><button class="btn dark wide" id="fSave">Save to log</button></div>
 </div>
 
@@ -63,7 +65,7 @@ const groups = GROUPS.filter(g => g !== "All").filter(g => JOBS.some(j => j.grou
       <button class="btn" id="impBtn">Import a backup</button>
       <input id="impFile" type="file" accept="application/json,.json" hidden />
     </div>
-    <p class="hint" id="ioMsg"></p>
+    <p class="hint" id="ioMsg" role="status"></p>
     <hr class="rule" />
     <p class="small"><b>Start fresh.</b> Clears step checkmarks, timers, tool checks and cart checks. Keeps parts picks, prices and the service log.</p>
     <div class="btnrow"><button class="btn" id="freshBtn">Start fresh</button></div>

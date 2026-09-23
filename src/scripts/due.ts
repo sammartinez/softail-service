@@ -40,7 +40,7 @@ export function renderDue(): void {
      different cards. Everything reads as never logged on a fresh install. */
   let h = "";
   if (now.length) {
-    h += '<div class="card"><h2 style="margin-top:0">Due now<span class="badge" style="margin-left:8px">' +
+    h += '<div class="card"><h2 style="margin-top:0">Due now <span class="badge" style="margin-left:4px">' +
       now.length + "</span></h2>" + now.map(x => row(x.j, x.d)).join("") + "</div>";
   } else if (state().odo && state().log.length) {
     h += '<div class="card"><h2 style="margin-top:0">Due now</h2><p class="hint" style="margin:0">Nothing overdue.</p></div>';

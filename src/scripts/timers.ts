@@ -99,7 +99,12 @@ export function tick(): void {
   const now = Date.now();
   let rang = false;
   Object.entries(state().timers).forEach(([k, end]) => {
-    if (end <= now && !fired[k]) { fired[k] = true; beep(); rang = true; }
+    if (end <= now && !fired[k]) {
+      fired[k] = true; beep(); rang = true;
+      /* The countdown itself is not a live region — it would talk every
+         second. Only the finish is announced. */
+      text($("announce"), "Time's up: " + timerLabel(k));
+    }
   });
   all<HTMLElement>("[data-tleft]").forEach(el => {
     const k = el.dataset.tleft!;
@@ -118,6 +123,7 @@ export function tick(): void {
 export function startTimer(key: string, sec: number): void {
   state().timers[key] = Date.now() + sec * 1000;
   delete fired[key];
+  text($("announce"), "");
   ensureAudio();
   save();
   paintTimers();

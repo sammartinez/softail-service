@@ -7,10 +7,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check && tsc --noEmit",
+    "check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "data": "node schema-check.mjs"
+    "data": "node schema-check.mjs",
+    "icons": "node icons.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",

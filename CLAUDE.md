@@ -18,6 +18,10 @@ https://claude.ai/artifact/CVZJYhKg558rckA8SWWpe2 — edits here do not update i
   shopping-list config maps (`LINKS`, `MERGE`, `QTY`, `ITEMQTY`, `HINTS`).
 - `app.js` — state, due maths, rendering, event delegation.
 - `sw.js`, `manifest.webmanifest`, `icon*.png|svg` — offline and install.
+- `public/icon.svg` (home screen) and `public/favicon.svg` (browser tab) are
+  the source; the icon is a 45° V-twin in the accent blue, and the tab version
+  drops the fins because they blur at 16px. `npm run icons` rebuilds every PNG
+  from them (`icons.mjs`), then bump `CACHE` in `sw.js`.
 - `tests/suite.js` — 1217 jsdom checks.
 - `tests/_shot.js` — writes the diagram to an HTML file so it can be looked at.
 
@@ -72,6 +76,24 @@ their natural size and a long one wraps instead of overflowing a narrow column.
 Don't set `white-space:nowrap` on them again — that was what pushed a long store
 label out of a two-column grid cell at 900px. Keep store labels short and put
 the explanation in the item's `note`.
+
+## Accessibility
+
+Audited with axe-core in Chrome across every view (September 2026): no
+violations. The rules that keep it that way:
+
+- Contrast. White text never sits on Apple's systemBlue, systemGreen or
+  systemOrange (2.2 to 4.0:1). Fills behind white text use `--accent`
+  (#0071E3), `--green` (green-700) or, for diagram badges, amber-700/800; the
+  running timer puts dark digits on orange. `--muted` is gray-600, because
+  gray-500 is 4.3:1 on the grouped grey. Checkbox-like edges use `--edge`.
+- The diagram SVGs are `role="group"`, not `img`. `img` hides the marker
+  buttons inside it from screen readers.
+- When a tap hides the control that had focus (opening a job, jumping to the
+  log or shop), focus moves to `#viewTitle`; "All jobs" returns it to the card.
+- `#announce` is the one live region for timers: it says when one finishes.
+  The countdown itself must not be live, or it talks every second.
+- `#logSaved` is a live region, so only replace its markup when it changes.
 
 ## Why no Tailwind any more
 

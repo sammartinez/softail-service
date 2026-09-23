@@ -18,10 +18,10 @@ const { key, sec } = Astro.props;
 
 <span data-timer-run={key} hidden style="display:inline-flex;align-items:center;gap:10px">
   <span class="tbtn run"><Fragment set:html={CLOCK} /><span data-tleft={key}>{fmtTime(sec)}</span></span>
-  <button class="btn link" data-act="tcancel" data-key={key}>Cancel</button>
+  <button class="btn sm" data-act="tcancel" data-key={key}>Cancel</button>
 </span>
 
 <span data-timer-up={key} hidden style="display:inline-flex;align-items:center;gap:10px">
   <span class="tbtn up">Time's up</span>
-  <button class="btn link" data-act="tcancel" data-key={key}>Reset</button>
+  <button class="btn sm" data-act="tcancel" data-key={key}>Reset</button>
 </span>

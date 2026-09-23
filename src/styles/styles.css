@@ -19,7 +19,7 @@
    Apple's system colours carry meaning (accent, overdue, soon, done). Where the
    two overlap, a comment says which one won and why.
 
-   There is no build step. This file is hand-written and hand-edited. */
+   Hand-written and hand-edited: Astro bundles it as-is, nothing generates it. */
 
 :root{
   /* ---- Tailwind v4 default theme, verbatim ------------------------- */
@@ -87,7 +87,7 @@
 
   /* ---- what the app actually asks for ------------------------------ */
   /* These names are the ones the rules below (and a few inline styles in
-     app.js) use. Keeping them means the token layer above can be swapped
+     src/scripts) use. Keeping them means the token layer above can be swapped
      without touching 400 lines of rules. */
   --bg:var(--system-grouped-bg);
   --card:var(--color-white);
@@ -196,7 +196,7 @@ header.top .odo b{font-family:var(--cond);font-size:var(--text-xl);color:var(--i
 /* cards + generic bits */
 /* The grouped card: white on the grey grouped background, generous corner,
    hairline edge, and a shadow soft enough that it reads as paper rather than
-   as a floating panel. The border stays a real border because app.js overrides
+   as a floating panel. The border stays a real border because the scripts override
    border-color inline on the "all done" and "your pick" cards. */
 .card{
   background:var(--card);border:1px solid var(--color-gray-200);border-radius:var(--r2);
@@ -302,7 +302,7 @@ header.top .odo b{font-family:var(--cond);font-size:var(--text-xl);color:var(--i
    text, with a hairline between rows that starts where the text starts rather
    than at the card edge. That left-inset hairline is the single most Apple
    thing in the app. It is drawn as a pseudo-element, not a border, because
-   .duerow is a <button> that app.js resets with an inline `border:0` — an
+   .duerow is a <button> that due.ts renders with an inline `border:0` — an
    inline border wins over any rule here, a pseudo-element is untouched by it.
    Rows wash grey under a thumb instead of scaling. */
 .step,.check,.duerow{position:relative}

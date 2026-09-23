@@ -1,8 +1,8 @@
 ---
 /* The shell: head, header, bottom nav, timer bar, footer.
 
-   Everything the vanilla index.html had, with the same ids and classes, because
-   styles.css addresses them by name and the responsive rules key off them. */
+   Same ids and classes as the vanilla build had, because styles.css addresses
+   them by name and the responsive rules key off them. */
 import { BIKE } from "@data/jobs";
 import { VIEWS } from "@lib/state";
 import { NAV } from "@lib/icons";
@@ -35,9 +35,6 @@ const label: Record<string, string> = {
 <link rel="icon" href={base + "favicon-32.png"} sizes="32x32" type="image/png" />
 <link rel="icon" href={base + "favicon.svg"} type="image/svg+xml" />
 <link rel="apple-touch-icon" href={base + "icon-180.png"} />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
 

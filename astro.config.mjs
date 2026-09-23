@@ -4,7 +4,7 @@ import { defineConfig } from "astro/config";
    runs off a phone's home screen with no signal, so every route prerenders and
    nothing is server-rendered.
 
-   No React and no Tailwind on purpose — see the Deviations note in CLAUDE.md.
+   No React and no Tailwind on purpose — see "Why no Tailwind any more" in CLAUDE.md.
    The interactive parts are checkbox toggles and countdown timers, which plain
    bundled <script> handles without shipping a runtime, and styles.css is the
    hand-built design system this app already has. */

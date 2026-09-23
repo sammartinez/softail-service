@@ -11,19 +11,29 @@ https://claude.ai/artifact/CVZJYhKg558rckA8SWWpe2 — edits here do not update i
 
 ## Files
 
-- `index.html` — shell markup only. No inline script.
-- `styles.css` — the whole design system by hand. No framework.
-- `data-jobs.js` — `BIKE`, `INTERVALS`, `SCHEDULE`, `SPOTS`, `JOBS`.
-- `data-ref.js` — `SPECS`, `TORQUES`, `TROUBLE`, `DTC`, `PARTS`, `TOOLS`, and the
-  shopping-list config maps (`LINKS`, `MERGE`, `QTY`, `ITEMQTY`, `HINTS`).
-- `app.js` — state, due maths, rendering, event delegation.
-- `sw.js`, `manifest.webmanifest`, `icon*.png|svg` — offline and install.
+Astro 7, static output. The old vanilla build (root `index.html`, `app.js`,
+`data-*.js`) was removed in September 2026; it's in git history.
+
+- `src/pages/index.astro` — the one page: all five views prerendered, toggled
+  by `[hidden]`. `src/layouts/App.astro` — head, header, nav, timer bar.
+- `src/components/` — `jobs/`, `shop/`, `log/`, `ref/`, and `diagram/`
+  (`geometry.ts` is the drawing).
+- `src/data/jobs.ts` — `BIKE`, `INTERVALS`, `SCHEDULE`, `SPOTS`, `JOBS`.
+  `src/data/ref.ts` — `SPECS`, `TORQUES`, `TROUBLE`, `DTC`, `PARTS`, `TOOLS`,
+  and the shopping-list maps (`LINKS`, `MERGE`, `QTY`, `ITEMQTY`, `HINTS`).
+  `types.ts` types them; `schema.ts` checks them at build (`npm run data` runs
+  it alone).
+- `src/lib/` — pure logic, no DOM: state, due maths, shop rules, formatting.
+- `src/scripts/` — the browser side: `boot.ts` wires the delegated listeners,
+  the rest paint one view each by setting attributes, not rebuilding markup.
+- `src/styles/styles.css` — the whole design system by hand. No framework.
+- `public/` — `sw.js`, `manifest.webmanifest` and the icons, copied as-is.
 - `public/icon.svg` (home screen) and `public/favicon.svg` (browser tab) are
   the source; the icon is a 45° V-twin in the accent blue, and the tab version
   drops the fins because they blur at 16px. `npm run icons` rebuilds every PNG
   from them (`icons.mjs`), then bump `CACHE` in `sw.js`.
-- `tests/suite.js` — 1217 jsdom checks.
-- `tests/_shot.js` — writes the diagram to an HTML file so it can be looked at.
+- `tests/*.test.ts` — the Vitest suite. `tests/_shot.mjs` writes the diagram
+  to an HTML file so it can be looked at.
 
 ## Hosting
 
@@ -35,10 +45,17 @@ dev` and `npm run preview` also serve under `/softail-service/`.
 
 ## Stack
 
-Vanilla JS, plain CSS, no build step, no CDN. Scripts are ordinary `<script>`
-tags (not modules) so the app also opens straight from the filesystem. The only
-remote request is Google Fonts (Barlow, Barlow Condensed), which degrades to the
-system stack offline and is cached by the service worker after one online load.
+Astro for the build, TypeScript, plain CSS, no UI framework, no CDN and no web
+font: the system face (SF on Apple hardware) needs nothing downloaded. The page
+makes no remote requests at all; only the store links leave the site.
+
+Link public files through `import.meta.env.BASE_URL`, never relative to the
+page. Astro prints the dev address without a trailing slash, and from there a
+relative `sw.js` resolves outside the base and fails.
+
+TypeScript is 7, the native compiler, which has no JS API — so `astro check`
+(`@astrojs/check`) can't run. `npm run check` is `tsc --noEmit` until Astro
+supports 7; `.astro` files are only checked by the build.
 
 Light theme only, by Sam's request. Don't add dark mode.
 
@@ -120,7 +137,7 @@ record of what the manual actually asks for; the Due screen is computed from
 
 ## The bike diagram
 
-`bikeSVG()` draws the bike once facing right — stand on the right of a bike and
+`geometry.ts` draws the bike once facing right — stand on the right of a bike and
 its front wheel is on your right — and mirrors that one drawing for the left
 view, so a part is positioned once and the two sides can't drift apart. The
 scale is 3.1 units to the inch off a 2003 FLSTC: ground at y=200, rear axle at
@@ -131,7 +148,7 @@ crank at about (213, 164) with the oval air cleaner at (216, 131), downtube
 nearly vertical at x=252, pillion top y=95, rider's seat y=109. Keep new parts
 on that grid and they land where they land on the bike. The photo was a
 reference only and is deliberately not in the repo. The drawing lives in
-`src/components/diagram/geometry.ts`; the root `app.js` copy is the old one.
+`src/components/diagram/geometry.ts`.
 
 Mirroring is `translate(DW,0) scale(-1,1)` about x=200, so the viewBox has to be
 symmetric about it — `44 14 312 194`, because 44 + 356 = `DW`; it's tall enough
@@ -155,9 +172,10 @@ windshield) and the ones you can't see (oil tank and battery under the seat).
 Frame tubes go through `tube()`, which strokes a dark casing under a lighter
 core; a flat stroke the same grey as everything else reads as a blob.
 
-`tests/_shot.js` writes the diagram to a standalone HTML file — jsdom does no
-layout, so the suite can prove a marker exists but not that it landed on the
-right lump of metal. Look at it after moving anything.
+`node tests/_shot.mjs` (after `npm run build`) writes the diagram to
+`map-preview.html`. The tests do no layout, so they can prove a marker exists
+but not that it landed on the right lump of metal. Look at it after moving
+anything.
 
 ## Saved state
 
@@ -167,7 +185,7 @@ right lump of metal. Look at it after moving anything.
 fields on load, so older saved data keeps working. The six tab fields are checked
 against `TABS` and reset when they hold a value no panel answers to — otherwise a
 hand-edited backup hides every panel on that screen. `TABS`, `VIEWS` and `GROUPS`
-sit at the top of `app.js` because `repair()` runs before anything else.
+live in `src/lib/state.ts` beside `repair()`, which runs before anything else.
 
 On first run with no `hd-maint-v1`, `migrate()` imports the old oil-change app's
 `softail-oil-v1` data if it's on the same origin — picks, prices, tools,
@@ -241,7 +259,7 @@ and never put a wrench on the cylinder head bolts as part of a fastener check.
    under 200 KB. Position markers as percentage-coordinate overlays and keep the
    existing `SPOTS` ids and step `loc` values so "Show where" keeps working.
    The drawing is good enough to work from in the meantime.
-2. Verify on a real phone what jsdom can't: the timer beep, vibration (iPhones
+2. Verify on a real phone what the tests can't: the timer beep, vibration (iPhones
    don't support the web vibration API), the screen staying awake during timers,
    install-to-home-screen, and offline after a reload.
 3. Check the hidden markers against the real bike. The visible parts were
@@ -254,21 +272,25 @@ and never put a wrench on the cylinder head bolts as part of a fastener check.
 
 ## Testing
 
-`npm install` once, then `npm test`. The suite strips the font link, evaluates
-the three scripts as one (the browser shares top-level `const` across script
-tags; `eval` doesn't) and re-exports the symbols it pokes at. jsdom 24 has no
-`matchMedia`, so it's stubbed. Add a check for every behaviour change.
+`npm install` once, then `npm test` (Vitest). Add a check for every behaviour
+change.
 
-The suite also lints `styles.css` against `app.js` for class collisions. A
-modifier like `chip due` silently picked up the layout of the standalone `.due`
-row rule twice during the build (and `chip spec` picked up the `.spec` table's
-`width:100%`), which jsdom cannot see because it does no layout. Modifier names
-must not match a standalone class that sets display, width, padding, border,
-flex or position.
+- `data.test.ts` — the data and the manual's rules (no automotive oils, DOT 5
+  only, and so on). `logic.test.ts` — due maths, shop rules, state repair.
+- `diagram.test.ts` — the frame and the markers add up.
+- `icons.test.ts` — every icon the page, manifest and worker name exists.
+- `styles.test.ts` — lints `styles.css`. A modifier like `chip due` silently
+  picked up the layout of the standalone `.due` row rule twice (and `chip spec`
+  the `.spec` table's `width:100%`), which no test runner can see because none
+  does layout. Modifier names must not match a standalone class that sets
+  display, width, padding, border, flex or position. It also checks every `/*`
+  is closed: an unclosed one leaves the brace count even, which is how the
+  `@media print` block once sat commented out and dead.
 
-It also checks that every `/*` in `styles.css` is closed. An unclosed one leaves
-the brace count even, so the brace check cannot see it — that is how the
-`@media print` block sat commented out and dead.
+The old 1217-check jsdom suite ran against the vanilla build and went with it.
+Its DOM behaviour checks (timers not rebuilt each tick, step toggles, the
+pick-one rules in the UI) have no Vitest equivalent yet; the pure logic under
+them is covered.
 
 If a shell file changes, bump `CACHE` in `sw.js` or phones keep serving the old
 copy. The worker is network-first and revalidates with `cache: "no-cache"`, so

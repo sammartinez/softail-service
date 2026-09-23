@@ -1,6 +1,6 @@
 /* Offline cache. Bump CACHE whenever any shell file changes, or the phone
    keeps serving the old copy. */
-const CACHE = "softail-service-v9";
+const CACHE = "softail-service-v10";
 /* Files with fixed names. The CSS and JS are bundled by Astro into _astro/
    with a content hash in the name, so they can't be listed here — install
    reads them out of the built page instead. Listing a file that doesn't exist
@@ -15,7 +15,6 @@ const SHELL = [
   "./icon-180.png",
   "./icon-512.png"
 ];
-const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 
 /* The page's own bundled assets: every same-origin href/src under _astro/. */
 const bundled = html =>
@@ -43,19 +42,6 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-
-  /* Fonts: use the cached copy if we have one, otherwise fetch and keep it,
-     so the app looks the same offline after one online load. */
-  if (FONTS.test(req.url)) {
-    e.respondWith(
-      caches.match(req).then(hit => hit || fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(req, copy));
-        return res;
-      }).catch(() => hit))
-    );
-    return;
-  }
 
   /* Anything off-origin (store links) goes straight to the network. */
   if (url.origin !== location.origin) return;

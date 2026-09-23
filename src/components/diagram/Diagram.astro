@@ -52,7 +52,7 @@ const spotOf = (id: string) => SPOTS.find(s => s.id === id);
                 <circle class="diag-halo" cx={x} cy={y} r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" />
                 <circle cx={x} cy={y} r="15" fill="transparent" />
                 <circle class="diag-badge" cx={x} cy={y} r="11" stroke="#fff" stroke-width="2" />
-                <text x={x} y={y + 4.5} text-anchor="middle" font-family="Barlow, sans-serif" font-weight="700" font-size="13" fill="#fff">{sp.n}</text>
+                <text x={x} y={y + 4.5} text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-weight="700" font-size="13" fill="#fff">{sp.n}</text>
               </g>
             );
           })}

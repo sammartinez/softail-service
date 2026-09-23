@@ -1,0 +1,71 @@
+---
+/* The Log screen: the entry form, history, and settings/backup.
+
+   The checklist of jobs is static — it is just every job, grouped — so it
+   prerenders and the client only ticks the box for a job Sam jumped here from.
+   History stays client-built: it is entirely Sam's saved entries. */
+import { JOBS } from "@data/jobs";
+import { GROUPS } from "@lib/state";
+
+const groups = GROUPS.filter(g => g !== "All").filter(g => JOBS.some(j => j.group === g));
+---
+
+<div id="logSaved"></div>
+
+<div class="card">
+  <h2 style="margin-top:0">Log a service</h2>
+  <div class="fieldrow">
+    <div>
+      <label class="fld" for="fOdo">Odometer</label>
+      <input id="fOdo" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 38400" autocomplete="off" />
+    </div>
+    <div>
+      <label class="fld" for="fDate">Date</label>
+      <input id="fDate" type="date" />
+    </div>
+  </div>
+  <p class="fld" style="margin-bottom:0">What did you do?</p>
+  <div id="fItems">
+    {groups.map(g => (
+      <div style="margin-top:10px">
+        <p class="xs muted" style="margin:0 0 2px">{g}</p>
+        {JOBS.filter(j => j.group === g).map(j => (
+          <label data-fuel-only={j.fuel} style="display:flex;gap:9px;align-items:center;padding:6px 0;font-size:15.5px">
+            <input type="checkbox" class="fJob" value={j.id} style="width:20px;height:20px;flex:0 0 auto" />
+            <span>{j.title}</span>
+          </label>
+        ))}
+      </div>
+    ))}
+  </div>
+  <label class="fld" for="fNote">Notes</label>
+  <textarea id="fNote" rows="2" placeholder="Oil used, anything you noticed on the drain plugs, parts still needed"></textarea>
+  <p class="err" id="fErr" hidden></p>
+  <div class="btnrow"><button class="btn dark wide" id="fSave">Save to log</button></div>
+</div>
+
+<h2>History</h2>
+<div id="history"></div>
+
+<details class="acc">
+  <summary>Settings and backup</summary>
+  <div class="body">
+    <label class="fld" for="fuelSel">Fuel system</label>
+    <select id="fuelSel">
+      <option value="carb">Carbureted (FLSTC)</option>
+      <option value="efi">Fuel injected (FLSTCI)</option>
+    </select>
+    <p class="hint">Hides the jobs that don't apply to your bike.</p>
+    <hr class="rule" />
+    <p class="small"><b>Backup.</b> Saved data lives in this browser only, tied to the address the app is served from. Export before you move the app somewhere new.</p>
+    <div class="btnrow">
+      <button class="btn" id="expBtn">Export a backup file</button>
+      <button class="btn" id="impBtn">Import a backup</button>
+      <input id="impFile" type="file" accept="application/json,.json" hidden />
+    </div>
+    <p class="hint" id="ioMsg"></p>
+    <hr class="rule" />
+    <p class="small"><b>Start fresh.</b> Clears step checkmarks, timers, tool checks and cart checks. Keeps parts picks, prices and the service log.</p>
+    <div class="btnrow"><button class="btn" id="freshBtn">Start fresh</button></div>
+  </div>
+</details>

@@ -10,10 +10,15 @@ import { defineConfig } from "astro/config";
    hand-built design system this app already has. */
 export default defineConfig({
   output: "static",
-  /* Sam's data lives in localStorage, which is tied to the origin AND the path,
-     so moving the app moves the saved log. Keep the built asset paths relative
-     so the same dist/ works from a subdirectory as well as a domain root. */
-  base: "./",
+  /* Published on GitHub Pages at <user>.github.io/softail-service/, so every
+     built asset path starts with the repo name. Astro doesn't support a
+     relative base: "./" came out as "/./_astro/…", which only works at a domain
+     root. Rename the repo and this must change with it.
+
+     Sam's data lives in localStorage, which is per origin (the github.io
+     address), so it doesn't carry over from a local copy — use Log → Settings
+     and backup to move it. */
+  base: "/softail-service",
   build: {
     inlineStylesheets: "never",
     format: "file",

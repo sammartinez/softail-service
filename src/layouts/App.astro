@@ -1,0 +1,72 @@
+---
+/* The shell: head, header, bottom nav, timer bar, footer.
+
+   Everything the vanilla index.html had, with the same ids and classes, because
+   styles.css addresses them by name and the responsive rules key off them. */
+import { BIKE } from "@data/jobs";
+import { VIEWS } from "@lib/state";
+import { NAV } from "@lib/icons";
+import "../styles/styles.css";
+
+const views = Object.keys(VIEWS) as (keyof typeof NAV)[];
+const label: Record<string, string> = {
+  due: "Due", jobs: "Jobs", shop: "Shop", log: "Log", ref: "Specs",
+};
+---
+
+<!doctype html>
+<html lang="en" data-fuel="carb">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<meta name="theme-color" content="#F8FAFC" />
+<meta name="description" content="Maintenance reference for a 2003 Harley-Davidson Heritage Softail Classic, built from the Softail 2000-2005 service manual." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Softail" />
+<title>Softail Service · 2003 Heritage</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <p class="kicker" id="bikeLine">{BIKE.year} {BIKE.name} · {BIKE.engine} · <span id="fuelLabel">Carb</span></p>
+    <h1 id="viewTitle">What's due</h1>
+    <p class="odo" id="odoLine"></p>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="card flat xs muted" style="margin-bottom:18px">
+    <p style="margin:0">Figures come from the Clymer <i>Harley-Davidson Softail 2000-2005</i> service manual, for a 2003 FLSTC. Steps here are shortened for the garage; the manual is the authority. Part picks and store links are not from the manual.</p>
+  </footer>
+</div>
+
+<div class="timerbar" id="timerBar" hidden></div>
+
+<nav class="bar" aria-label="Views">
+  <p class="brand" aria-hidden="true">Softail Service</p>
+  <div class="inner">
+    {views.map((v, i) => (
+      <button data-view={v} aria-current={i === 0 ? "page" : undefined}>
+        <Fragment set:html={NAV[v]} />{label[v]}
+      </button>
+    ))}
+  </div>
+</nav>
+
+<script>
+  import { init } from "../scripts/boot";
+  init();
+</script>
+</body>
+</html>

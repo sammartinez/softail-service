@@ -1,0 +1,132 @@
+---
+/* One job procedure, fully prerendered.
+
+   All 27 of these are in the page at once; the client unhides the one Sam
+   opened. The step text — the single biggest block of HTML in the app — is
+   static, so it costs nothing to have them all here and it means opening a job
+   in the garage is instant and needs no signal.
+
+   What the client still sets, per the state it loads:
+     .step         gets `done` or `next`
+     .num          swaps its digit for a tick, and flips aria-checked
+     [data-count]  the "n of total" counter
+     [data-due]    the due line's text and its muted class
+     [data-clearsteps], [data-allticked]  shown only when they apply
+     [data-pick], [data-havetool]         the parts/tools you already have
+   Nothing here gets rebuilt — attributes only. That is also why the timer
+   buttons survive a tick now: there is nothing left to re-create under a
+   thumb mid-tap. */
+import type { Job } from "@data/types";
+import { PARTS } from "@data/ref";
+import { toolName, shortCat } from "@lib/format";
+import { intervalLabel } from "@lib/due";
+import { PIN, WRENCH } from "@lib/icons";
+import Timer from "./Timer.astro";
+
+interface Props { job: Job }
+const { job } = Astro.props;
+
+/* Tools this job mentions, in the order the steps first ask for them. */
+const toolIds: string[] = [];
+job.steps.forEach(st => (st.tl || []).forEach(t => {
+  if (!toolIds.includes(t)) toolIds.push(t);
+}));
+const partGroups = PARTS.filter(g => (g.jobs || []).indexOf(job.id) > -1);
+---
+
+<div data-job-detail={job.id} hidden>
+  <div class="card">
+    <p class="small muted" style="margin:0">{job.group}{job.page ? ` · ${job.page}` : ""}</p>
+    <p style="margin-top:4px">{job.lede}</p>
+    <div class="chips">
+      {job.mins && <span class="chip plain">about {job.mins} min</span>}
+      <span class="chip plain">{intervalLabel(job)}</span>
+      {job.cap && <span class="chip">{job.cap}</span>}
+      {job.warm && <span class="chip">Warm it up first</span>}
+      {job.upright && <span class="chip">Hold it upright</span>}
+    </div>
+    <p class="small muted" data-due={job.id} style="margin:10px 0 0" hidden></p>
+    <div class="btnrow">
+      <button class="btn sm" data-jump="log">Log this job</button>
+      <button class="btn sm" data-clearsteps="1" hidden>Clear checkmarks</button>
+    </div>
+  </div>
+
+  {(toolIds.length > 0 || partGroups.length > 0) && (
+    <details class="acc">
+      <summary>What you need</summary>
+      <div class="body">
+        {partGroups.length > 0 && (
+          <Fragment>
+            <h3 style="margin-top:0">Parts and fluids</h3>
+            <ul class="small">
+              {partGroups.map(g => (
+                <li>
+                  {shortCat(g.cat)}
+                  <span data-pick={g.cat}> <span class="muted">(nothing picked yet)</span></span>
+                </li>
+              ))}
+            </ul>
+          </Fragment>
+        )}
+        {toolIds.length > 0 && (
+          <Fragment>
+            <h3>Tools</h3>
+            <ul class="small">
+              {toolIds.map(t => (
+                <li>
+                  {toolName(t)}
+                  <span class="chip ok xs" data-havetool={t} hidden>have it</span>
+                </li>
+              ))}
+            </ul>
+          </Fragment>
+        )}
+        <div class="btnrow"><button class="btn sm" data-jump="shop">Open parts and tools</button></div>
+      </div>
+    </details>
+  )}
+
+  <div class="card">
+    <div class="rowline">
+      <h2 style="margin:0">Steps</h2>
+      <span class="small muted" data-count={job.id}>0 of {job.steps.length}</span>
+    </div>
+    {job.steps.map((st, i) => (
+      <div class="step" data-toggle={`${job.id}:${i}`}>
+        <button class="num" role="checkbox" aria-checked="false" aria-label={`Step ${i + 1}: ${st.t}`}>{i + 1}</button>
+        <div class="grow">
+          <div class="t">{st.t}</div>
+          <div class="b">{st.b}</div>
+          {st.c?.length && (
+            <span class="chips">{st.c.map(c => <span class="chip">{c}</span>)}</span>
+          )}
+          {st.tl?.length && (
+            <span class="chips">
+              {st.tl.map(t => (
+                <span class="chip plain"><Fragment set:html={WRENCH} />{toolName(t)}</span>
+              ))}
+            </span>
+          )}
+          {st.w && <span class="warn"><b>Careful:</b><span>{st.w}</span></span>}
+          {(st.loc || st.tm) && (
+            <span class="btnrow" style="margin-top:9px">
+              {st.loc && (
+                <button class="btn sm" data-act="where" data-loc={st.loc}>
+                  <Fragment set:html={PIN} />Show where
+                </button>
+              )}
+              {st.tm && <Timer key={`${job.id}:${i}`} sec={st.tm[0]} />}
+            </span>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="card" data-allticked hidden style="border-color:var(--green-line);background:var(--green-bg)">
+    <p style="margin:0;font-weight:700;color:var(--green-ink)">All steps ticked</p>
+    <p class="small" style="color:var(--green-ink);margin:4px 0 0">Log it so the next due date is right.</p>
+    <div class="btnrow"><button class="btn go" data-jump="log">Log this job</button></div>
+  </div>
+</div>

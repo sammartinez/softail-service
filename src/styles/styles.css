@@ -420,8 +420,24 @@ nav.bar button[aria-current="page"]{color:var(--accent);font-weight:var(--font-w
 nav.bar button:active{opacity:.55}
 nav.bar svg{width:1.4375rem;height:1.4375rem}
 
+/* Fuel system. Jobs, log rows and DTC lists that belong to only one fuel
+   system carry data-fuel-only; <html data-fuel> decides which is on screen.
+   Switching between carb and EFI is then one attribute, not a rebuild of
+   every list. Anything with no data-fuel-only applies to both bikes. */
+html[data-fuel="carb"] [data-fuel-only="efi"],
+html[data-fuel="efi"] [data-fuel-only="carb"]{display:none!important}
+
 /* diagram */
 figure.diag{margin:0.625rem 0 0;background:var(--tint);border-radius:var(--r);padding:0.5rem}
+/* Marker selection. The whole diagram is prerendered, so picking a spot is
+   three CSS rules rather than rebuilding both SVGs: dim the others, show the
+   halo that is already in the DOM, darken the badge. */
+.diag-halo{display:none}
+.diag-badge{fill:#F59E0B}
+#map.dim [data-spot]{opacity:0.35}
+#map.dim [data-spot].sel{opacity:1}
+[data-spot].sel .diag-halo{display:block}
+[data-spot].sel .diag-badge{fill:#D97706}
 figure.diag svg{width:100%;height:auto;display:block}
 figure.diag figcaption{font-size:var(--text-xs);font-weight:var(--font-weight-semibold);color:var(--muted);padding:0.125rem 0.25rem 0}
 .legend{list-style:none;padding:0;margin:0.625rem 0 0}

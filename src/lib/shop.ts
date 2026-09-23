@@ -1,8 +1,8 @@
 /* Buy list, store planning and the pick-one rules. Lifted from app.js with
    only the render calls stripped out — the callers re-render now. */
 
-import { PARTS, LOCAL, MERGE, QTY, ITEMQTY, LINKS } from "@data/ref";
-import type { PartGroup, Where } from "@data/types";
+import { rt } from "./runtime";
+import type { RtPartGroup, RtWhere } from "./runtime";
 import { findItem, groupOf, shortCat } from "./format";
 import { state, save } from "./state";
 
@@ -10,7 +10,7 @@ export interface BuyLine {
   key: string;
   name: string;
   pn: string;
-  where: Where[];
+  where: RtWhere[];
   qty: number;
   unit: string;
   per: string;
@@ -19,17 +19,17 @@ export interface BuyLine {
 }
 
 export function buyLines(): BuyLine[] {
-  const picked: { g: PartGroup; it: PartGroup["items"][number] }[] = [];
-  PARTS.forEach(g => g.items.forEach(it => { if (state().have[it.id]) picked.push({ g, it }); }));
+  const picked: { g: RtPartGroup; it: RtPartGroup["items"][number] }[] = [];
+  rt().parts.forEach(g => g.items.forEach(it => { if (state().have[it.id]) picked.push({ g, it }); }));
   const lines: Record<string, BuyLine> = {};
   picked.forEach(p => {
     /* One bottle, one line. MERGE points every listing of a product at the one
        entry that names it in full, whether or not that entry is itself picked —
        otherwise Mobil 1 in the transmission and Mobil 1 in the primary come out
        as two separate 1 qt lines with the same name. */
-    const key = MERGE[p.it.id] || p.it.id;
+    const key = rt().merge[p.it.id] || p.it.id;
     const base = findItem(key) || p.it;
-    const q = ITEMQTY[p.it.id] || QTY[p.g.cat] || [1, "", "each"];
+    const q = rt().itemQty[p.it.id] || rt().qty[p.g.cat] || [1, "", "each"];
     if (!lines[key]) {
       lines[key] = {
         key, name: base.name, pn: base.pn, where: base.where || [],
@@ -53,9 +53,9 @@ export interface StorePlan {
 export function storePlan(lines: BuyLine[]): StorePlan {
   /* Split the list into what a chain parts store can supply and what it can't,
      then look for one store that covers the first half. */
-  const noLocal = lines.filter(l => !(l.where || []).some(w => LOCAL.indexOf(w.s) > -1));
+  const noLocal = lines.filter(l => !(l.where || []).some(w => rt().local.indexOf(w.s) > -1));
   const localLines = lines.filter(l => noLocal.indexOf(l) < 0);
-  const covers = LOCAL.filter(s =>
+  const covers = rt().local.filter(s =>
     localLines.length && localLines.every(l => (l.where || []).some(w => w.s === s)));
   const dealer = noLocal.filter(l => (l.where || []).some(w => w.s === "Dealer"));
   const online = noLocal.filter(l => dealer.indexOf(l) < 0);
@@ -65,7 +65,7 @@ export function storePlan(lines: BuyLine[]): StorePlan {
 /* Drop what a pick auto-filled elsewhere, but only the categories still
    flagged as auto-filled — one the user has since chosen by hand is theirs. */
 export function unlink(id: string): void {
-  (LINKS[id] || []).forEach(l => {
+  (rt().links[id] || []).forEach(l => {
     if (state().linked[l]) { delete state().have[l]; delete state().linked[l]; }
   });
 }
@@ -88,7 +88,7 @@ export function togglePick(id: string): void {
       });
     }
     state().have[id] = true;
-    (LINKS[id] || []).forEach(l => {
+    (rt().links[id] || []).forEach(l => {
       const lg = groupOf(l);
       if (lg && !lg.items.some(it => state().have[it.id])) {
         state().have[l] = true;
@@ -99,7 +99,7 @@ export function togglePick(id: string): void {
   save();
 }
 
-export function clearPick(g: PartGroup): void {
+export function clearPick(g: RtPartGroup): void {
   g.items.forEach(it => {
     if (state().have[it.id]) { unlink(it.id); delete state().have[it.id]; }
     delete state().linked[it.id];
@@ -111,7 +111,7 @@ export function clearPick(g: PartGroup): void {
    current pick put the engine oil and brake fluid on a tire-pressure check. */
 export function partsUsed(jobIds: string[]): string[] {
   const out: string[] = [];
-  PARTS.forEach(g => {
+  rt().parts.forEach(g => {
     if (!(g.jobs || []).some(id => jobIds.indexOf(id) > -1)) return;
     g.items.forEach(it => {
       if (state().have[it.id] && out.indexOf(it.name) < 0) out.push(it.name);

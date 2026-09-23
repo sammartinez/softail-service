@@ -4,8 +4,8 @@
    system, so they stay together rather than becoming pure functions of their
    arguments — the call sites all want "given what Sam has saved". */
 
-import { INTERVALS, JOBS } from "@data/jobs";
-import type { Job } from "@data/types";
+import { rt } from "./runtime";
+import type { RtJob } from "./runtime";
 import { miles } from "./format";
 import { state, type LogEntry } from "./state";
 
@@ -19,26 +19,26 @@ export interface Due {
   left?: number | null;
 }
 
-const intervalOf = (k: string): number => INTERVALS.find(i => i.k === k)?.miles || 0;
+const intervalOf = (k: string): number => rt().intervals.find(i => i.k === k)?.miles || 0;
 
 /** The smallest recurring interval. Break-in (500) only counts if it's alone. */
-export function jobInterval(job: Job): number {
+export function jobInterval(job: RtJob): number {
   const rec = job.at.filter(k => k !== "ride" && k !== "i500").map(intervalOf).filter(Boolean);
   if (rec.length) return Math.min.apply(null, rec);
   return job.at.includes("i500") ? 500 : 0;
 }
 
-export const applies = (job: Job): boolean => !job.fuel || job.fuel === state().fuel;
+export const applies = (job: RtJob): boolean => !job.fuel || job.fuel === state().fuel;
 
 /* A job with no mileage interval is either a pre-ride check or genuinely
    as-needed. Calling a pre-ride check "as needed" reads as optional. */
-export function intervalLabel(job: Job): string {
+export function intervalLabel(job: RtJob): string {
   const m = jobInterval(job);
   if (m) return "every " + miles(m);
   return job.at.indexOf("ride") > -1 ? "every ride" : "as needed";
 }
 
-export const activeJobs = (): Job[] => JOBS.filter(applies);
+export const activeJobs = (): RtJob[] => rt().jobs.filter(applies);
 
 /* for-of rather than forEach: TypeScript can't follow an assignment made
    inside a callback, and narrows `best` to never. */
@@ -50,7 +50,7 @@ export function lastDone(jobId: string): LogEntry | null {
   return best;
 }
 
-export function dueStatus(job: Job): Due {
+export function dueStatus(job: RtJob): Due {
   const every = jobInterval(job);
   if (!every) return { s: "asneeded", every: 0 };
   const odo = Number(state().odo);

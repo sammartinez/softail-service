@@ -1,0 +1,27 @@
+---
+/* A step's countdown. All three states are in the DOM; the client shows one.
+
+   The vanilla build rebuilt these buttons on every one-second tick, which ate
+   taps — there was a test guarding against it. Prerendering all three states
+   and only swapping the countdown's text makes that failure mode impossible:
+   the button under Sam's thumb is never replaced. */
+import { fmtTime } from "@lib/format";
+import { CLOCK } from "@lib/icons";
+
+interface Props { key: string; sec: number }
+const { key, sec } = Astro.props;
+---
+
+<button class="tbtn" data-act="tstart" data-key={key} data-sec={sec} data-timer-idle={key}>
+  <Fragment set:html={CLOCK} />Start {fmtTime(sec)} timer
+</button>
+
+<span data-timer-run={key} hidden style="display:inline-flex;align-items:center;gap:10px">
+  <span class="tbtn run"><Fragment set:html={CLOCK} /><span data-tleft={key}>{fmtTime(sec)}</span></span>
+  <button class="btn link" data-act="tcancel" data-key={key}>Cancel</button>
+</span>
+
+<span data-timer-up={key} hidden style="display:inline-flex;align-items:center;gap:10px">
+  <span class="tbtn up">Time's up</span>
+  <button class="btn link" data-act="tcancel" data-key={key}>Reset</button>
+</span>

@@ -1,0 +1,56 @@
+---
+/* The Jobs screen: the diagram, the group tabs, the card list, and all 27
+   prerendered job details.
+
+   Cards carry `data-group` and `data-fuel-only` so filtering by group or fuel
+   system is attribute matching in CSS, not a rebuild. The due chip and the
+   progress chip are the only things the client fills in. */
+import { JOBS } from "@data/jobs";
+import { GROUPS } from "@lib/state";
+import { intervalLabel } from "@lib/due";
+import Diagram from "@components/diagram/Diagram.astro";
+import JobDetail from "./JobDetail.astro";
+---
+
+<details class="acc" id="mapBox">
+  <summary>Where everything is</summary>
+  <div class="body">
+    <Diagram />
+  </div>
+</details>
+
+<div class="seg" id="jobSeg" role="group" aria-label="Job group">
+  {GROUPS.map((g, i) => (
+    <button data-g={g} aria-pressed={i === 0 ? "true" : "false"}>{g}</button>
+  ))}
+</div>
+
+<div id="jobList">
+  {JOBS.map(j => (
+    <button
+      class="card"
+      data-open={j.id}
+      data-group={j.group}
+      data-fuel-only={j.fuel}
+      style="display:block;width:100%;text-align:left"
+    >
+      <span style="font-family:var(--cond);font-size:22px;font-weight:700;display:block;line-height:1.15">{j.title}</span>
+      <span class="small muted" style="display:block">{j.lede}</span>
+      <span class="chips">
+        <span class="chip overdue" data-duechip={j.id} hidden>Due</span>
+        {j.mins && <span class="chip plain">{j.mins} min</span>}
+        {j.cap && <span class="chip plain">{j.cap}</span>}
+        <span class="chip plain">{intervalLabel(j)}</span>
+        <span class="chip" data-progress={j.id} hidden></span>
+      </span>
+    </button>
+  ))}
+  <p class="hint" data-nojobs hidden style="margin-top:16px">No jobs in this group for your bike.</p>
+</div>
+
+<div id="jobDetail" hidden>
+  <button class="btn sm" id="jobBack">&larr; All jobs</button>
+  <div id="jobBody">
+    {JOBS.map(j => <JobDetail job={j} />)}
+  </div>
+</div>

@@ -1,8 +1,7 @@
 /* Formatting and small lookups. Lifted unchanged from the vanilla app.js. */
 
-import { JOBS, SPOTS } from "@data/jobs";
-import { PARTS, TOOLS } from "@data/ref";
-import type { Job, PartGroup, PartItem, Spot, Tool } from "@data/types";
+import { rt } from "./runtime";
+import type { RtItem, RtJob, RtPartGroup } from "./runtime";
 
 export const esc = (s: unknown): string =>
   String(s == null ? "" : s).replace(/[&<>"]/g, c =>
@@ -32,18 +31,14 @@ export const fmtDate = (d: string): string => {
 /** "Engine oil (4 qt)" -> "Engine oil" */
 export const shortCat = (c: string): string => c.replace(/ \(.*\)/, "");
 
-export const jobById = (id: string): Job | undefined => JOBS.find(j => j.id === id);
-export const spotById = (id: string): Spot | undefined => SPOTS.find(s => s.id === id);
+export const jobById = (id: string): RtJob | undefined => rt().jobs.find(j => j.id === id);
 
-export const toolById = (id: string): Tool | undefined => {
-  for (const g of TOOLS) for (const t of g.items) if (t.id === id) return t;
+export const toolName = (id: string): string => rt().toolNames[id] ?? id;
+
+export const findItem = (id: string): RtItem | undefined => {
+  for (const g of rt().parts) for (const it of g.items) if (it.id === id) return it;
   return undefined;
 };
 
-export const findItem = (id: string): PartItem | undefined => {
-  for (const g of PARTS) for (const it of g.items) if (it.id === id) return it;
-  return undefined;
-};
-
-export const groupOf = (id: string): PartGroup | undefined =>
-  PARTS.find(g => g.items.some(it => it.id === id));
+export const groupOf = (id: string): RtPartGroup | undefined =>
+  rt().parts.find(g => g.items.some(it => it.id === id));

@@ -1,0 +1,67 @@
+---
+/* The whole app on one page.
+
+   Five sections, four of them prerendered in full, toggled by [hidden]. Not
+   five routes: a timer running in the garage holds a screen wake lock, and
+   navigating away would drop it and re-run every script mid-oil-change.
+
+   check() runs the data schema at build time, so a step pointing at a diagram
+   marker that doesn't exist fails the build rather than shipping. */
+import App from "../layouts/App.astro";
+import { check } from "@data/schema";
+import { projectRuntime } from "@lib/project";
+import { setRuntime } from "@lib/runtime";
+import { JOBS } from "@data/jobs";
+import Jobs from "@components/jobs/Jobs.astro";
+import Shop from "@components/shop/Shop.astro";
+import Log from "@components/log/Log.astro";
+import Reference from "@components/ref/Reference.astro";
+
+check();
+
+/* The components below use the same lookups the browser does, so the slice
+   has to be in place before they render. */
+const runtime = projectRuntime();
+setRuntime(runtime);
+
+/* The every-ride walk-around: static, and the one part of the Due screen that
+   doesn't depend on the odometer or the log. */
+const ride = JOBS.filter(j => j.at.indexOf("ride") > -1);
+---
+
+<App>
+  <section id="view-due">
+    <div class="card" id="odoCard">
+      <label class="fld" for="odoNow">Current odometer</label>
+      <input id="odoNow" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 38400" autocomplete="off" />
+      <p class="hint" id="odoHint">Whole miles. Everything on this screen is worked out from this number and your service log.</p>
+    </div>
+    <div id="dueNow"></div>
+    <div id="dueSoon"></div>
+    <div id="dueRest"></div>
+    <div class="card flat" id="rideCard">
+      <h3>Every ride</h3>
+      <p class="hint">The walk-around the manual asks for before each ride.</p>
+      <div id="dueRide">
+        {ride.map(j => (
+          <button class="duerow ok" data-job={j.id} data-fuel-only={j.fuel} style="width:100%;text-align:left;border:0;background:none">
+            <span class="dot"></span>
+            <span class="grow">
+              <span class="lbl">{j.title}</span>
+              <span class="when">{j.lede}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="view-jobs" hidden><Jobs /></section>
+
+  <section id="view-shop" hidden><Shop /></section>
+
+  <section id="view-log" hidden><Log /></section>
+
+  <section id="view-ref" hidden><Reference /></section>
+  <script type="application/json" id="appdata" set:html={JSON.stringify(runtime)}></script>
+</App>

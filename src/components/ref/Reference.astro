@@ -1,0 +1,93 @@
+---
+/* The Reference screen: specs, torques, symptoms, diagnostic codes.
+
+   This is the part of the app with no state at all. In the vanilla build it was
+   still built by JS on first open and memoised; here it is just HTML, so the
+   tables are on screen before any script runs.
+
+   The only variable is the fuel system, and it only picks which DTC rows and
+   which how-to list to show. Both variants render and `html[data-fuel]` decides
+   which is visible — one CSS rule instead of a rebuild.
+
+   Markup matches the vanilla renderRef() element for element: styles.css
+   targets `.spectable td` and `.note span` directly. */
+import { SPECS, TORQUES, TROUBLE, DTC, DTC_HOWTO } from "@data/ref";
+
+const torqueGroups = [...new Set(TORQUES.map(t => t.grp))];
+const fuels = ["carb", "efi"] as const;
+---
+
+<div class="seg" id="refSeg" role="group" aria-label="Reference section">
+  <button data-ref="specs" aria-pressed="true">Specs</button>
+  <button data-ref="torque" aria-pressed="false">Torque</button>
+  <button data-ref="fix" aria-pressed="false">Symptoms</button>
+  <button data-ref="codes" aria-pressed="false">Codes</button>
+</div>
+
+<div id="refSpecs">
+  {SPECS.map(g => (
+    <div class="card">
+      <div class="rowline">
+        <h2 style="margin:0">{g.group}</h2>
+        <span class="xs muted">{g.src}</span>
+      </div>
+      <table class="spectable">
+        {g.rows.map(r => <tr><td>{r[0]}</td><td>{r[1]}</td></tr>)}
+      </table>
+      {g.notes?.map(n => <p class="note"><span>{n}</span></p>)}
+    </div>
+  ))}
+</div>
+
+<div id="refTorque" hidden>
+  <p class="hint" style="margin-top:14px">Figures for the 2003 FLSTC. Anything not listed here is in the manual’s chapter tables.</p>
+  {torqueGroups.map(grp => (
+    <div class="card">
+      <h2 style="margin-top:0">{grp}</h2>
+      <table class="spectable">
+        {TORQUES.filter(t => t.grp === grp).map(t => (
+          <tr>
+            <td>{t.item}{t.note && <span class="xs" style="display:block">{t.note}</span>}</td>
+            <td>{t.v}{t.nm && <span class="xs muted" style="display:block;font-weight:400">{t.nm}</span>}</td>
+          </tr>
+        ))}
+      </table>
+    </div>
+  ))}
+</div>
+
+<div id="refFix" hidden>
+  <p class="hint" style="margin-top:14px">Condensed from the manual’s troubleshooting chapter. Work top to bottom; the cheap causes are listed first.</p>
+  {TROUBLE.map(t => (
+    <details class="acc">
+      <summary>{t.q}</summary>
+      <div class="body">
+        {t.warn && <p class="warn"><span>{t.warn}</span></p>}
+        <ul class="small">{t.causes.map(c => <li>{c}</li>)}</ul>
+      </div>
+    </details>
+  ))}
+</div>
+
+<div id="refCodes" hidden>
+  {fuels.map(f => (
+    <div data-fuel-only={f}>
+      <div class="card">
+        <h2 style="margin-top:0">Reading the codes</h2>
+        <ol class="small">{DTC_HOWTO[f].map(s => <li>{s}</li>)}</ol>
+        <p class="note"><span>{DTC_HOWTO.note}</span></p>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Code list</h2>
+        <table class="spectable">
+          {DTC.filter(c => !c[2] || c[2] === f).map(c => (
+            <tr>
+              <td style="font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)">{c[0]}</td>
+              <td style="text-align:left;font-weight:400">{c[1]}</td>
+            </tr>
+          ))}
+        </table>
+      </div>
+    </div>
+  ))}
+</div>

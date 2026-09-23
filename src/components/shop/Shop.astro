@@ -1,0 +1,95 @@
+---
+/* The Shop screen: buy list, parts catalogue, tools checklist.
+
+   Parts and tools are catalogues — names, part numbers, notes and store links
+   are all static, so both prerender in full. Each row carries `data-store` so
+   the store filter is attribute matching rather than a rebuild, and the client
+   only sets the tick, the pressed state and the pick-one disabling.
+
+   The buy list is the exception and stays client-built: which lines exist at
+   all depends on what Sam has picked, and the quantities come from merging
+   those picks. */
+import { PARTS, TOOLS, STORES } from "@data/ref";
+---
+
+<div class="seg" id="shopSeg" role="group" aria-label="Shop section">
+  <button data-shop="list" aria-pressed="true">Buy list</button>
+  <button data-shop="parts" aria-pressed="false">Parts</button>
+  <button data-shop="tools" aria-pressed="false">Tools</button>
+</div>
+
+<div id="shopList"></div>
+
+<div id="shopParts" hidden>
+  <p class="hint" style="margin-top:14px">Pick one product per fluid and the buy list works out which single store has everything.</p>
+  <div class="pills" id="filters" role="group" aria-label="Filter by store">
+    {STORES.map((s, i) => (
+      <button data-s={s} aria-pressed={i === 0 ? "true" : "false"}>{s}</button>
+    ))}
+  </div>
+  <div id="parts">
+    {PARTS.map((g, gi) => (
+      <section class="cardgroup" data-partgroup={gi} data-stores={[...new Set(g.items.flatMap(i => i.where.map(w => w.s)))].join(" ")}>
+        <h2>{g.cat}</h2>
+        {g.pick && (
+          <div class="card" data-pickcard={gi} hidden style="margin-top:0;border-color:var(--green-line);background:var(--green-bg)">
+            <div class="rowline">
+              <span class="small grow" style="color:var(--green-ink)">
+                <b>Your pick:</b> <span data-pickname={gi}></span>
+                <span class="xs" data-picklinked={gi} hidden style="display:block">Matched to your engine oil</span>
+              </span>
+              <button class="btn sm" data-clear={gi}>Change</button>
+            </div>
+          </div>
+        )}
+        <div class="card" style="margin-top:8px">
+          {g.items.map(it => (
+            <div class="check" data-store={it.where.map(w => w.s).join(" ")}>
+              <button class="box" data-id={it.id} aria-pressed="false" aria-label={it.name}></button>
+              <div class="grow">
+                <div style="font-weight:600;line-height:1.3">
+                  {it.name}{it.tag && <Fragment> <span class="chip">{it.tag}</span></Fragment>}
+                </div>
+                {it.pn && <div class="xs muted">{it.pn}</div>}
+                {it.note && <div class="small" style="margin-top:3px">{it.note}</div>}
+                {it.where.length > 0 && (
+                  <div class="chips">
+                    {it.where.map(w => w.u
+                      ? <a class="chip plain" href={w.u} target="_blank" rel="noopener">{w.t}</a>
+                      : <span class="chip plain">{w.t}</span>)}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+    <p class="hint" data-noparts hidden style="margin-top:16px">Nothing in this category at that store.</p>
+  </div>
+</div>
+
+<div id="shopTools" hidden>
+  <p class="hint" style="margin-top:14px">Tool sizes come from owner guides and common practice, not the manual. Test-fit before anything is hot.</p>
+  <div id="tools">
+    {TOOLS.map(g => (
+      <section class="cardgroup">
+        <h2>{g.cat}</h2>
+        <div class="card" style="margin-top:8px">
+          {g.items.map(t => (
+            <div class="check">
+              <button class="box" data-tool={t.id} aria-pressed="false" aria-label={t.name}></button>
+              <div class="grow">
+                <div style="font-weight:600;line-height:1.3">
+                  {t.name}{t.tag && <Fragment> <span class="chip">{t.tag}</span></Fragment>}
+                </div>
+                <div class="small muted">{t.use}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+  <div class="btnrow"><button class="btn" id="resetTools">Clear tool checkmarks</button></div>
+</div>

@@ -11,10 +11,13 @@
 import { describe, it, expect } from "vitest";
 import { JOBS, SCHEDULE, SPOTS, INTERVALS } from "../src/data/jobs";
 import { SPECS, TORQUES, TROUBLE, DTC, PARTS, TOOLS, MERGE, LINKS } from "../src/data/ref";
-import { toolById, findItem } from "../src/lib/format";
+
 import { check } from "../src/data/schema";
 
 const jobIds = JOBS.map(j => j.id);
+const allToolIds = new Set(TOOLS.flatMap(g => g.items.map(t => t.id)));
+const partIdSet = new Set(PARTS.flatMap(g => g.items.map(i => i.id)));
+const findItem = (id: string) => partIdSet.has(id);
 
 describe("schema", () => {
   it("every structure and cross-reference validates", () => {
@@ -35,7 +38,7 @@ describe("jobs", () => {
       expect(s.t, `${j.id} step ${i} title`).toBeTruthy();
       expect(s.b, `${j.id} step ${i} body`).toBeTruthy();
       (s.tl || []).forEach(t =>
-        expect(toolById(t), `${j.id} step ${i} tool '${t}'`).toBeTruthy());
+        expect(allToolIds.has(t), `${j.id} step ${i} tool '${t}'`).toBe(true));
       if (s.loc) {
         expect(SPOTS.some(p => p.id === s.loc), `${j.id} step ${i} location '${s.loc}'`).toBe(true);
       }

@@ -21,6 +21,14 @@ https://claude.ai/artifact/CVZJYhKg558rckA8SWWpe2 — edits here do not update i
 - `tests/suite.js` — 1217 jsdom checks.
 - `tests/_shot.js` — writes the diagram to an HTML file so it can be looked at.
 
+## Hosting
+
+GitHub Pages, repo `softail-service`, so the app lives at
+`<user>.github.io/softail-service/`. `base` in `astro.config.mjs` must match the
+repo name. `.github/workflows/deploy.yml` tests, builds and publishes on every
+push to main (repo Settings → Pages → Source: GitHub Actions). Locally, `npm run
+dev` and `npm run preview` also serve under `/softail-service/`.
+
 ## Stack
 
 Vanilla JS, plain CSS, no build step, no CDN. Scripts are ordinary `<script>`
@@ -95,12 +103,18 @@ its front wheel is on your right — and mirrors that one drawing for the left
 view, so a part is positioned once and the two sides can't drift apart. The
 scale is 3.1 units to the inch off a 2003 FLSTC: ground at y=200, rear axle at
 x=104 and front at x=304, which is the 64.5 in. wheelbase; tyre radius 39.5 is a
-16 in. rim on an MT90; the crank is at (186, 166) and the seat top is 27 in. up
-at y=116. Keep new parts on that grid and they land where they land on the bike.
+16 in. rim on an MT90. The rest was traced (September 2026) off a side-on
+catalogue photo of a 2003 Heritage scaled so its axles land on those two points:
+crank at about (213, 164) with the oval air cleaner at (216, 131), downtube
+nearly vertical at x=252, pillion top y=95, rider's seat y=109. Keep new parts
+on that grid and they land where they land on the bike. The photo was a
+reference only and is deliberately not in the repo. The drawing lives in
+`src/components/diagram/geometry.ts`; the root `app.js` copy is the old one.
 
 Mirroring is `translate(DW,0) scale(-1,1)` about x=200, so the viewBox has to be
-symmetric about it — `44 28 312 180`, because 44 + 356 = `DW`. A test checks
-that, otherwise one side quietly crops.
+symmetric about it — `44 14 312 194`, because 44 + 356 = `DW`; it's tall enough
+for the windshield. `tests/diagram.test.ts` checks that, otherwise one side
+quietly crops.
 
 `BASE` is what you see from either side, `SIDE_R` and `SIDE_L` what only one
 side has: air cleaner, exhaust and transmission on the right; primary, belt and
@@ -208,9 +222,11 @@ and never put a wrench on the cylinder head bolts as part of a fastener check.
 2. Verify on a real phone what jsdom can't: the timer beep, vibration (iPhones
    don't support the web vibration API), the screen staying awake during timers,
    install-to-home-screen, and offline after a reload.
-3. Fill in more of the diagram: several markers are placed by eye rather than
-   measured off the bike. The ones worth checking against the real bike are the
-   oil tank drain line, the transmission drain, and the steering head fitting.
+3. Check the hidden markers against the real bike. The visible parts were
+   placed off a photo; the ones it can't show still sit by reasoning from the
+   manual's text: the oil tank drain line, the transmission drain, the oil
+   filter, the rear master cylinder, and the whole left side (the photo was of
+   the right).
 4. The app does not yet track time-based service (brake fluid by age, storage in
    the autumn). Everything is mileage-driven. Worth adding if Sam wants it.
 

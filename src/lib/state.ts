@@ -5,7 +5,7 @@
    only a backup import replaces the whole object, via `setState()`.
    Everything here is pure apart from load/save, so it tests without a DOM. */
 
-import { PARTS, STORES } from "@data/ref";
+import { rt } from "./runtime";
 import { today, jobById } from "./format";
 import type { Fuel } from "@data/types";
 
@@ -64,7 +64,9 @@ export const TABS: Record<string, readonly string[]> = {
   shop: ["list", "parts", "tools"],
   ref: ["specs", "torque", "fix", "codes"],
   jgroup: GROUPS,
-  store: STORES,
+  /* A getter: the store list comes from the runtime slice, which is not
+     loaded yet when this module is first evaluated. */
+  get store() { return rt().stores; },
 };
 
 export function repair(s: unknown): State {
@@ -94,7 +96,7 @@ export function repair(s: unknown): State {
     if (TABS[k]!.indexOf(out[k] as string) < 0) (out as any)[k] = def[k];
   });
   /* One pick per pick-one category. */
-  PARTS.forEach(g => {
+  rt().parts.forEach(g => {
     if (!g.pick) return;
     let f = false;
     g.items.forEach(it => {

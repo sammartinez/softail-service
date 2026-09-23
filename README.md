@@ -21,12 +21,21 @@ with up to four card columns on a desktop.
 ## Running it
 
     npm install
-    npm test          # 1217 jsdom checks
-    npm run serve     # open the printed URL on your phone (same Wi-Fi)
+    npm test                     # the vitest suite
+    npm run dev                  # live-reloading copy while editing
+    npm run build                # builds the site into dist/
+    npm run preview -- --host    # serves dist/; open the Network URL on your phone (same Wi-Fi)
 
-Opening `index.html` straight from Finder works too, but the service worker
-(and therefore offline mode) only registers over http, so use `npm run serve`
-for the garage. On the phone, use Share → Add to Home Screen.
+Both `dev` and `preview` serve the app under `/softail-service/`, the same
+path it has on GitHub Pages, so the address ends in that. Opening a file
+straight from Finder doesn't work; it has to be served. `preview` keeps
+running in the background after the command returns; stop it with
+`npx astro preview stop`.
+
+The real copy lives on GitHub Pages at `<user>.github.io/softail-service/` and
+republishes on every push to `main` (see `.github/workflows/deploy.yml`). For
+the garage, open that on the phone once with signal, then Share → Add to Home
+Screen. After that it works offline.
 
 ## Backing up
 

@@ -11,5 +11,9 @@ export default defineConfig({
       "@components": r("./src/components"),
     },
   },
-  test: { include: ["tests/**/*.test.ts"], environment: "node" },
+  test: {
+    include: ["tests/**/*.test.ts"],
+    environment: "node",
+    setupFiles: ["tests/setup.ts"],
+  },
 });

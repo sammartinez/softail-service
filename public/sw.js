@@ -1,13 +1,13 @@
 /* Offline cache. Bump CACHE whenever any shell file changes, or the phone
    keeps serving the old copy. */
-const CACHE = "softail-service-v6";
+const CACHE = "softail-service-v8";
+/* Files with fixed names. The CSS and JS are bundled by Astro into _astro/
+   with a content hash in the name, so they can't be listed here — install
+   reads them out of the built page instead. Listing a file that doesn't exist
+   fails the whole install (addAll is all-or-nothing), which is how the old
+   app's styles.css in this list turned into a 404 and no offline at all. */
 const SHELL = [
   "./",
-  "./index.html",
-  "./styles.css",
-  "./data-jobs.js",
-  "./data-ref.js",
-  "./app.js",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icon-180.png",
@@ -15,8 +15,18 @@ const SHELL = [
 ];
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 
+/* The page's own bundled assets: every same-origin href/src under _astro/. */
+const bundled = html =>
+  [...html.matchAll(/(?:href|src)="([^"]*_astro\/[^"]+)"/g)].map(m => new URL(m[1], self.registration.scope).href);
+
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE).then(async c => {
+      await c.addAll(SHELL);
+      const page = await c.match("./");
+      if (page) await c.addAll(bundled(await page.text()));
+    }).then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", e => {
@@ -65,6 +75,6 @@ self.addEventListener("fetch", e => {
         caches.open(CACHE).then(c => c.put(req, copy));
       }
       return res;
-    }).catch(() => caches.match(req).then(hit => hit || caches.match("./index.html")))
+    }).catch(() => caches.match(req).then(hit => hit || caches.match("./")))
   );
 });

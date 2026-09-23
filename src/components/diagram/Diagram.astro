@@ -1,0 +1,78 @@
+---
+/* "Where everything is" — both sides of the bike, and the numbered legend.
+
+   The whole drawing is static: in the vanilla build the only dynamic input was
+   the selected marker, and it changed exactly three things per marker (the
+   group's opacity, whether a halo circle exists, and the badge fill).
+
+   So all of it prerenders, the halo is always in the DOM, and selection is a
+   `sel` class plus a `dim` class on the figure. The client sets two classes
+   instead of rebuilding two SVGs — see styles.css for the three rules. */
+import { SPOTS } from "@data/jobs";
+import { BASE, SIDE_R, SIDE_L, MARKS, DW, VIEWBOX } from "./geometry";
+
+const sides = [
+  { side: "right", art: SIDE_R, caption: "Right side, front of bike at right" },
+  { side: "left", art: SIDE_L, caption: "Left side, front of bike at left" },
+] as const;
+
+const spotOf = (id: string) => SPOTS.find(s => s.id === id);
+---
+
+<p class="hint">Tap a number on the bike or in the list. Dashed outlines are the
+  parts that come off first, and the ones hidden under the seat.</p>
+
+<div id="map">
+  {sides.map(({ side, art, caption }) => {
+    const left = side === "left";
+    const mx = (v: number) => (left ? DW - v : v);
+    const marks = MARKS.filter(m => m.s === "b" || m.s === (left ? "l" : "r"));
+    return (
+      <figure class="diag">
+        <svg viewBox={VIEWBOX} role="img" aria-label={`${left ? "Left" : "Right"} side of the bike with numbered service points`}>
+          <g transform={left ? `translate(${DW},0) scale(-1,1)` : undefined}>
+            <Fragment set:html={BASE + art} />
+          </g>
+          {marks.map(m => {
+            const sp = spotOf(m.id);
+            if (!sp) return null;
+            const x = mx(m.x), y = m.y;
+            return (
+              <g data-spot={sp.id} role="button" tabindex="0" aria-label={`${sp.n}, ${sp.name}`} style="cursor:pointer">
+                {(m.t || []).map(p => {
+                  const d = `M${x} ${y}L${mx(p[0])} ${p[1]}`;
+                  return (
+                    <Fragment>
+                      <path d={d} stroke="#fff" stroke-width="5" stroke-linecap="round" />
+                      <path d={d} stroke="#B45309" stroke-width="1.8" stroke-linecap="round" />
+                      <circle cx={mx(p[0])} cy={p[1]} r="3.6" fill="#B45309" stroke="#fff" stroke-width="1.6" />
+                    </Fragment>
+                  );
+                })}
+                <circle class="diag-halo" cx={x} cy={y} r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2" />
+                <circle cx={x} cy={y} r="15" fill="transparent" />
+                <circle class="diag-badge" cx={x} cy={y} r="11" stroke="#fff" stroke-width="2" />
+                <text x={x} y={y + 4.5} text-anchor="middle" font-family="Barlow, sans-serif" font-weight="700" font-size="13" fill="#fff">{sp.n}</text>
+              </g>
+            );
+          })}
+        </svg>
+        <figcaption>{caption}</figcaption>
+      </figure>
+    );
+  })}
+</div>
+
+<ul class="legend" id="legend">
+  {SPOTS.map(s => (
+    <li>
+      <button data-spot={s.id} aria-pressed="false">
+        <span class="n">{s.n}</span>
+        <span class="grow">
+          <span class="nm">{s.name}</span>
+          <span class="wh">{s.where}</span>
+        </span>
+      </button>
+    </li>
+  ))}
+</ul>
